@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,25 +8,47 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+// Custom TextInput Component
+type MyTxtInputProps = {
+  placeholder: string;
+  isPassword: boolean;
+};
+
+function MyTxtInput({
+  placeholder,
+  isPassword,
+}: MyTxtInputProps): React.JSX.Element {
+  const [inputVal, setInputVal] = useState('');
+
+  const handleChangeTxt = (newTxt: string) => {
+    console.log(`txt changed: ${newTxt}`);
+    setInputVal(newTxt); // Update the state
+  };
+
+  return (
+    <TextInput
+      style={styles.input}
+      placeholder={placeholder}
+      placeholderTextColor="#888"
+      secureTextEntry={isPassword}
+      onChangeText={handleChangeTxt}
+      value={inputVal}
+    />
+  );
+}
+
+// Login Component
 const Login = () => {
   return (
     <View style={styles.container}>
+      {/* Logo */}
       <Image style={styles.logo} source={require('../img/logo.png')} />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#888"
-        keyboardType="email-address"
-      />
+      {/* Inputs */}
+      <MyTxtInput placeholder="Email" isPassword={false} />
+      <MyTxtInput placeholder="Password" isPassword={true} />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor="#888"
-        secureTextEntry
-      />
-
+      {/* Login Button */}
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
@@ -34,6 +56,7 @@ const Login = () => {
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -43,12 +66,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   logo: {
-    marginBottom: 20,
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
     marginBottom: 20,
   },
   input: {
