@@ -78,7 +78,6 @@ const Profile = () => {
 };
 
 const styles = StyleSheet.create({
-  // 전체 컨테이너
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -86,9 +85,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
 
-  // 상단 로고
   logoContainer: {
-    alignItems: 'flex-start', // 왼쪽 정렬
+    alignItems: 'flex-start',
     marginBottom: 20,
   },
   logo: {
@@ -97,15 +95,14 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
-  // 프로필 섹션
   profileSection: {
-    alignItems: 'center', // 왼쪽 정렬
+    alignItems: 'center',
     marginBottom: 20,
   },
   profileImage: {
-    width: 90, // 프로필 이미지 크기
+    width: 90,
     height: 90,
-    borderRadius: 45, // 원형
+    borderRadius: 45,
     marginBottom: 10,
   },
   profileName: {
