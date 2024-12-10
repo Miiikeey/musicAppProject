@@ -12,5 +12,7 @@ import Search from './src/componants/search';
 import Profile from './src/componants/profile';
 import ProfileEdit from './src/componants/profileEdit';
 import PlayScreen from './src/componants/playScreen';
+import TopSongs from './src/componants/top';
+import NewSongs from './src/componants/new';
 
-AppRegistry.registerComponent(appName, () => PlayScreen);
+AppRegistry.registerComponent(appName, () => Main);
