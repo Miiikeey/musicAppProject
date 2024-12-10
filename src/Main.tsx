@@ -1,12 +1,14 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import Header from './componants/header';
+import BottomNavBar from './componants/BottomNavBar';
 
 const Main = () => {
   return (
     <View style={styles.container}>
       <Header />
       {/* 나머지 화면 내용 */}
+      <BottomNavBar />
     </View>
   );
 };
