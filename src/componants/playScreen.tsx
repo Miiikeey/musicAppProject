@@ -1,8 +1,14 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import Slider from '@react-native-community/slider';
 
 const PlayScreen = () => {
+  const [isPlaying, setIsPlaying] = useState(false); // 재생 상태 관리
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying); // 상태를 반대로 토글
+  };
+
   return (
     <View style={styles.container}>
       {/* 상단 헤더 */}
@@ -68,8 +74,15 @@ const PlayScreen = () => {
             style={styles.controlIcon}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={require('../img/Play.png')} style={styles.playIcon} />
+        <TouchableOpacity onPress={togglePlayPause}>
+          <Image
+            source={
+              isPlaying
+                ? require('../img/Stop.png') // 정지 버튼 이미지
+                : require('../img/Play.png') // 재생 버튼 이미지
+            }
+            style={styles.playIcon}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
           <Image
