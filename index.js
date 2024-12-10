@@ -11,5 +11,6 @@ import SideMenu from './src/componants/sideMenu';
 import Search from './src/componants/search';
 import Profile from './src/componants/profile';
 import ProfileEdit from './src/componants/profileEdit';
+import PlayScreen from './src/componants/playScreen';
 
-AppRegistry.registerComponent(appName, () => ProfileEdit);
+AppRegistry.registerComponent(appName, () => PlayScreen);
