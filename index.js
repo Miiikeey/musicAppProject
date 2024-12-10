@@ -10,5 +10,6 @@ import Login from './src/componants/login';
 import SideMenu from './src/componants/sideMenu';
 import Search from './src/componants/search';
 import Profile from './src/componants/profile';
+import ProfileEdit from './src/componants/profileEdit';
 
-AppRegistry.registerComponent(appName, () => Profile);
+AppRegistry.registerComponent(appName, () => ProfileEdit);
