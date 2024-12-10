@@ -15,4 +15,4 @@ import PlayScreen from './src/componants/playScreen';
 import TopSongs from './src/componants/top';
 import NewSongs from './src/componants/new';
 
-AppRegistry.registerComponent(appName, () => Main);
+AppRegistry.registerComponent(appName, () => Profile);

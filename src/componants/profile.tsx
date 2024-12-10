@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
+import BottomNavBar from './BottomNavBar';
 
 const Profile = () => {
   const playlists = [
@@ -73,6 +74,9 @@ const Profile = () => {
           </TouchableOpacity>
         )}
       />
+
+      {/* 하단 네비게이션 */}
+      <BottomNavBar />
     </View>
   );
 };
