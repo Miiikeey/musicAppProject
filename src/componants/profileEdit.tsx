@@ -7,15 +7,12 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import BackButton from './BackButton';
 
 const ProfileEdit = () => {
   return (
     <View style={styles.container}>
-      {/* 뒤로가기 아이콘 */}
-      <TouchableOpacity style={styles.backButton}>
-        <Text style={styles.backButtonText}>←</Text>
-      </TouchableOpacity>
-
+      <BackButton />
       {/* 제목 */}
       <Text style={styles.title}>Edit Profile</Text>
 
@@ -78,13 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 16,
-  },
-  backButton: {
-    marginBottom: 16,
-  },
-  backButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   title: {
     fontSize: 24,

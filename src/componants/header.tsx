@@ -1,14 +1,23 @@
 import React from 'react';
 import {View, Image, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const Header = () => {
+  const navigation = useNavigation<NavigationProp>();
+
   return (
     <View style={styles.headerContainer}>
-      {/* 로고 이미지 */}
-      <Image style={styles.logo} source={require('../img/logo.png')} />
-
-      {/* 로그인 버튼 */}
-      <TouchableOpacity style={styles.loginButton}>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+        <Image style={styles.logo} source={require('../img/logo.png')} />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.loginButton}
+        onPress={() => navigation.navigate('Login')}
+      >
         <Text style={styles.loginText}>LOG IN</Text>
       </TouchableOpacity>
     </View>

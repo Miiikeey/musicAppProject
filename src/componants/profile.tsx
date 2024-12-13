@@ -1,83 +1,110 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
+  SafeAreaView,
 } from 'react-native';
-import BottomNavBar from './BottomNavBar';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
+import { deezerApi, type DeezerPlaylist } from '../services/deezerApi';
+import auth from '@react-native-firebase/auth';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const Profile = () => {
-  const playlists = [
-    'Playlist 1',
-    'Playlist 2',
-    'Playlist 3',
-    'Playlist 4',
-    'Playlist 5',
-  ];
+  const navigation = useNavigation<NavigationProp>();
+  const [playlists, setPlaylists] = useState<DeezerPlaylist[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUserPlaylists = async () => {
+    try {
+      const currentUser = auth().currentUser;
+      if (!currentUser) {
+        console.log('No user logged in');
+        return;
+      }
+
+      const userPlaylists = await deezerApi.getUserPlaylists(currentUser.uid);
+      setPlaylists(userPlaylists);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged(user => {
+      if (user) {
+        fetchUserPlaylists();
+      } else {
+        setPlaylists([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <View style={styles.container}>
-      {/* 상단 로고 */}
-      <View style={styles.logoContainer}>
-        <Image source={require('../img/logo.png')} style={styles.logo} />
-      </View>
-
-      {/* 프로필 섹션 */}
+    <SafeAreaView style={styles.container}>
+      <Image style={styles.logo} source={require('../img/logo.png')} />
+      
       <View style={styles.profileSection}>
-        <Image
-          source={require('../img/User.png')}
-          style={styles.profileImage}
+        <Image 
+          style={styles.profileImage} 
+          source={require('../img/User.png')} 
         />
         <Text style={styles.profileName}>Elysia Ku</Text>
-
-        {/* Edit 버튼과 공유 버튼 */}
+        
         <View style={styles.profileButtons}>
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={() => navigation.navigate('ProfileEdit')}
+          >
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
+          
           <TouchableOpacity style={styles.shareButton}>
-            <Image
-              source={require('../img/Export.png')}
-              style={styles.shareIcon}
+            <Image 
+              source={require('../img/Export.png')} 
+              style={styles.shareIcon} 
             />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Liked Songs */}
-      <TouchableOpacity style={styles.likedSongs}>
+      <TouchableOpacity style={styles.likedSongsSection}>
         <View style={styles.likedSongsLeft}>
-          <Image
-            source={require('../img/Heart.png')}
-            style={styles.playlistIcon}
-          />
+          <Image source={require('../img/Heart.png')} style={styles.heartIcon} />
           <Text style={styles.likedSongsText}>Liked Songs</Text>
         </View>
-        <Text style={styles.arrow}>➔</Text>
+        <Image source={require('../img/Down.png')} style={styles.chevronIcon} />
       </TouchableOpacity>
 
-      {/* Playlists */}
-      <Text style={styles.playlistHeader}>Playlists</Text>
-      <FlatList
-        data={playlists}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <TouchableOpacity style={styles.playlistItem}>
-            <Image
-              source={require('../img/Playlist.png')}
-              style={styles.playlistIcon}
-            />
-            <Text style={styles.playlistText}>{item}</Text>
-          </TouchableOpacity>
-        )}
-      />
-
-      {/* 하단 네비게이션 */}
-      <BottomNavBar />
-    </View>
+      <View style={styles.playlistsSection}>
+        <Text style={styles.playlistsTitle}>Playlists</Text>
+        <ScrollView>
+          {playlists.map((playlist, index) => (
+            <TouchableOpacity 
+              key={playlist.id || index}
+              style={styles.playlistItem}
+              onPress={() => navigation.navigate('PlayScreen', { playlistId: playlist.id })}
+            >
+              <View style={styles.playlistLeft}>
+                <Image source={require('../img/album_cover.png')} style={styles.playlistIcon} />
+                <Text style={styles.playlistName}>{`Playlist ${index + 1}`}</Text>
+              </View>
+              <Image source={require('../img/Down.png')} style={styles.chevronIcon} />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -85,114 +112,107 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
-
-  logoContainer: {
-    alignItems: 'flex-start',
-    marginBottom: 20,
   },
   logo: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain',
+    width: 50,
+    height: 50,
+    marginTop: 16,
+    marginLeft: 16,
   },
-
   profileSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 24,
+    marginBottom: 32,
   },
   profileImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 10,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
   },
   profileName: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 16,
   },
-
   profileButtons: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   editButton: {
     borderWidth: 1,
     borderColor: '#000',
-    paddingVertical: 5,
-    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 24,
     borderRadius: 20,
-    marginRight: 10,
+    marginRight: 16,
   },
   editButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#000',
+    fontSize: 16,
+    fontWeight: '500',
   },
   shareButton: {
-    backgroundColor: '#ddd',
-    padding: 10,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 8,
   },
   shareIcon: {
-    width: 18,
-    height: 18,
-    resizeMode: 'contain',
+    width: 24,
+    height: 24,
   },
-
-  likedSongs: {
+  likedSongsSection: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderRadius: 10,
-    marginBottom: 20,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   likedSongsLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  likedSongsIcon: {
-    fontSize: 18,
-    marginRight: 10,
+  heartIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
   likedSongsText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  arrow: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-
-  playlistHeader: {
     fontSize: 18,
+    fontWeight: '500',
+  },
+  chevronIcon: {
+    width: 24,
+    height: 24,
+  },
+  playlistsSection: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  playlistsTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginVertical: 16,
   },
   playlistItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    justifyContent: 'space-between',
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#eee',
+  },
+  playlistLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   playlistIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-    resizeMode: 'contain',
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
-  playlistText: {
-    fontSize: 16,
+  playlistName: {
+    fontSize: 18,
+    fontWeight: '500',
   },
 });
 
