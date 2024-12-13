@@ -1,22 +1,90 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {View, StyleSheet} from 'react-native';
 import Header from './componants/header';
 import BottomNavBar from './componants/BottomNavBar';
+import Home from './componants/mainScreen';
+import Search from './componants/search';
+import Library from './componants/library';
+import Login from './componants/login';
+import Profile from './componants/profile';
+import PlayScreen from './componants/playScreen';
+import ProfileEdit from './componants/profileEdit';
+import {RootStackParamList} from './types/navigation';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+const MainLayout = ({children}: {children: React.ReactNode}) => (
+  <View style={styles.container}>
+    <Header />
+    <View style={styles.content}>{children}</View>
+    <BottomNavBar />
+  </View>
+);
+
+const ScreenWithLayout = (Component: React.ComponentType<any>) => {
+  return (props: any) => (
+    <MainLayout>
+      <Component {...props} />
+    </MainLayout>
+  );
+};
 
 const Main = () => {
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '739921158481-q78h8l23j7ppr97hmtl84uhlbvqi7mv4.apps.googleusercontent.com',
+      offlineAccess: true,
+    });
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Header />
-      {/* 나머지 화면 내용 */}
-      <BottomNavBar />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          header: () => null,
+        }}>
+        <Stack.Screen 
+          name="Home" 
+          component={ScreenWithLayout(Home)} 
+        />
+        <Stack.Screen 
+          name="Search" 
+          component={ScreenWithLayout(Search)} 
+        />
+        <Stack.Screen 
+          name="Library" 
+          component={ScreenWithLayout(Library)} 
+        />
+        <Stack.Screen 
+          name="Login" 
+          component={Login} 
+        />
+        <Stack.Screen 
+          name="Profile" 
+          component={ScreenWithLayout(Profile)} 
+        />
+        <Stack.Screen 
+          name="PlayScreen" 
+          component={PlayScreen} 
+        />
+        <Stack.Screen 
+          name="ProfileEdit" 
+          component={ProfileEdit} 
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+  },
+  content: {
+    flex: 1,
   },
 });
 

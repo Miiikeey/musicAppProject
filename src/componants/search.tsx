@@ -5,59 +5,69 @@ import {
   TextInput,
   StyleSheet,
   FlatList,
+  Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+import {deezerApi, DeezerTrack} from '../services/deezerApi';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
+import BackButton from './BackButton';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const Search = () => {
-  const [searchText, setSearchText] = useState(''); // 검색 텍스트 상태
-  const [results, setResults] = useState<string[]>([]); // 검색 결과 (예제 데이터)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<DeezerTrack[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigation = useNavigation<NavigationProp>();
 
-  // 검색 데이터 (example database)
-  const data = [
-    'Song 1',
-    'Song 2',
-    'Artist 1',
-    'Artist 2',
-    'Album 1',
-    'Album 2',
-  ];
-
-  // 검색 로직
-  const handleSearch = (text: string) => {
-    setSearchText(text);
-
-    // 검색 결과 필터링
-    const filteredResults = data.filter(item =>
-      item.toLowerCase().includes(text.toLowerCase()),
-    );
-    setResults(filteredResults);
+  const handleSearch = async (text: string) => {
+    setSearchQuery(text);
+    if (text.length > 2) {
+      setIsLoading(true);
+      const results = await deezerApi.searchTracks(text);
+      setSearchResults(results);
+      setIsLoading(false);
+    }
   };
+
+  const renderTrackItem = ({item}: {item: DeezerTrack}) => (
+    <TouchableOpacity
+      style={styles.trackItem}
+      onPress={() => navigation.navigate('PlayScreen', {trackId: item.id})}>
+      <Image
+        source={{uri: item.album.cover_medium}}
+        style={styles.trackImage}
+      />
+      <View style={styles.trackInfo}>
+        <Text style={styles.trackTitle}>{item.title}</Text>
+        <Text style={styles.artistName}>{item.artist.name}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      {/* 검색 입력 필드 */}
+      <BackButton />
       <TextInput
         style={styles.searchInput}
-        placeholder="Search here..."
-        value={searchText}
+        placeholder="Search for tracks..."
+        value={searchQuery}
         onChangeText={handleSearch}
       />
-
-      {/* 검색 결과 표시 */}
-      <FlatList
-        data={results}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({item}) => (
-          <TouchableOpacity style={styles.resultItem}>
-            <Text style={styles.resultText}>{item}</Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            {searchText ? 'No results found.' : 'Start searching...'}
-          </Text>
-        }
-      />
+      
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0090A8" />
+      ) : (
+        <FlatList
+          data={searchResults}
+          renderItem={renderTrackItem}
+          keyExtractor={item => item.id.toString()}
+          style={styles.resultsList}
+        />
+      )}
     </View>
   );
 };
@@ -65,33 +75,45 @@ const Search = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
     padding: 16,
   },
   searchInput: {
     height: 50,
-    backgroundColor: '#fff',
-    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
+    borderRadius: 8,
     paddingHorizontal: 16,
-    fontSize: 16,
     marginBottom: 16,
+    fontSize: 16,
   },
-  resultItem: {
-    padding: 16,
+  resultsList: {
+    flex: 1,
+  },
+  trackItem: {
+    flexDirection: 'row',
+    padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#eee',
+    alignItems: 'center',
   },
-  resultText: {
-    fontSize: 16,
-    color: '#333',
+  trackImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 4,
   },
-  emptyText: {
-    textAlign: 'center',
+  trackInfo: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  trackTitle: {
     fontSize: 16,
-    color: '#aaa',
-    marginTop: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  artistName: {
+    fontSize: 14,
+    color: '#666',
   },
 });
 
