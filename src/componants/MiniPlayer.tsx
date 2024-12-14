@@ -51,7 +51,7 @@ const MiniPlayer = () => {
 const styles = StyleSheet.create({
   miniPlayer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 95,
     left: 5,
     right: 5,
     height: 80,
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    elevation: 5,
+    borderRadius: 10,
   },
   albumArt: {
     width: 50,

@@ -150,7 +150,6 @@ const Home = () => {
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id.toString()}
         />
-        <MiniPlayer />
       </View>
     </ScrollView>
   );
