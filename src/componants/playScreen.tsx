@@ -14,11 +14,13 @@ import {deezerApi, DeezerTrack} from '../services/deezerApi';
 import Sound from 'react-native-sound';
 import Slider from '@react-native-community/slider';
 import {useNavigation} from '@react-navigation/native';
+import {useMusicPlayer} from '../context/MusicPlayerContext';
 
 type PlayScreenRouteProp = RouteProp<RootStackParamList, 'PlayScreen'>;
 
 const PlayScreen = () => {
   const route = useRoute<PlayScreenRouteProp>();
+  const {setTrack: setGlobalTrack} = useMusicPlayer();
   const [track, setTrack] = useState<DeezerTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sound, setSound] = useState<Sound | null>(null);
@@ -53,14 +55,30 @@ const PlayScreen = () => {
       const trackData = await deezerApi.getTrackDetails(trackId);
       if (trackData) {
         setTrack(trackData);
+        setGlobalTrack({
+          id: trackData.id,
+          title: trackData.title,
+          artist: trackData.artist.name,
+          albumCover: trackData.album.cover_medium,
+          duration: trackData.duration,
+          previewUrl: trackData.preview,
+        });
         setupSound(trackData.preview);
       }
     } else if (playlistId) {
-      // Handle playlist loading
       const playlistTracks = await deezerApi.getPlaylistTracks(playlistId);
       if (playlistTracks?.length > 0) {
-        setTrack(playlistTracks[0]);
-        setupSound(playlistTracks[0].preview);
+        const firstTrack = playlistTracks[0];
+        setTrack(firstTrack);
+        setGlobalTrack({
+          id: firstTrack.id,
+          title: firstTrack.title,
+          artist: firstTrack.artist.name,
+          albumCover: firstTrack.album.cover_medium,
+          duration: firstTrack.duration,
+          previewUrl: firstTrack.preview,
+        }); // 전역 상태 업데이트
+        setupSound(firstTrack.preview);
       }
     }
   };
@@ -135,10 +153,9 @@ const PlayScreen = () => {
       <View style={styles.trackInfo}>
         <Text
           style={styles.trackTitle}
-          numberOfLines={1} // 한 줄로 제한
-          adjustsFontSizeToFit // 폰트를 자동으로 줄임
-          minimumFontScale={0.8} // 최소 폰트 크기 비율
-        >
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}>
           {track.title}
         </Text>
         <Text style={styles.artistName}>{track.artist.name}</Text>

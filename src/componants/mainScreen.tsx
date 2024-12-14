@@ -12,6 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../types/navigation';
 import {deezerApi, DeezerTrack} from '../services/deezerApi';
+import MiniPlayer from './MiniPlayer';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -149,6 +150,7 @@ const Home = () => {
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id.toString()}
         />
+        <MiniPlayer />
       </View>
     </ScrollView>
   );
