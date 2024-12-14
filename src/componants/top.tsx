@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import BottomNavBar from './BottomNavBar';
+import Header from './header';
 
 type Song = {
   id: string;
@@ -70,12 +71,7 @@ const TopSongs = () => {
   return (
     <View style={styles.container}>
       {/* 상단 헤더 */}
-      <View style={styles.header}>
-        <Image source={require('../img/logo.png')} style={styles.logo} />
-        <TouchableOpacity>
-          <Image source={require('../img/User.png')} style={styles.userIcon} />
-        </TouchableOpacity>
-      </View>
+      <Header />
 
       {/* 제목 */}
       <Text style={styles.title}>Top Songs</Text>
@@ -106,34 +102,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingTop: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    resizeMode: 'contain',
-  },
-  userIcon: {
-    width: 45,
-    height: 45,
-    resizeMode: 'contain',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginTop: 16,
+    marginLeft: 16,
   },
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 16,
+    margin: 10,
   },
   filterButton: {
     paddingVertical: 8,
@@ -156,6 +135,7 @@ const styles = StyleSheet.create({
   },
   songList: {
     flex: 1,
+    margin: 16,
   },
   songContainer: {
     flexDirection: 'row',

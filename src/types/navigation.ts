@@ -5,8 +5,11 @@ export type RootStackParamList = {
   Login: undefined;
   Profile: undefined;
   ProfileEdit: undefined;
+  NewSongs: undefined;
+  TopSongs: undefined;
+  RecentlyPlayed: undefined;
   PlayScreen: {
     trackId?: number;
     playlistId?: number;
   };
-}; 
+};

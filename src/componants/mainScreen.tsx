@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  ScrollView, 
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
   TouchableOpacity,
-  FlatList 
+  FlatList,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
-import { deezerApi, DeezerTrack } from '../services/deezerApi';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
+import {deezerApi, DeezerTrack} from '../services/deezerApi';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -27,12 +27,13 @@ const Home = () => {
   }, []);
 
   const fetchData = async () => {
-    const [recommendedTracks, recentTracks, topTracks, newTracks] = await Promise.all([
-      deezerApi.getTopTracks(),
-      deezerApi.getTopTracks(),
-      deezerApi.getTopTracks(),
-      deezerApi.getTopTracks()
-    ]);
+    const [recommendedTracks, recentTracks, topTracks, newTracks] =
+      await Promise.all([
+        deezerApi.getTopTracks(),
+        deezerApi.getTopTracks(),
+        deezerApi.getTopTracks(),
+        deezerApi.getTopTracks(),
+      ]);
 
     setRecommendations(recommendedTracks.slice(0, 3));
     setRecentlyPlayed(recentTracks.slice(0, 3));
@@ -40,30 +41,43 @@ const Home = () => {
     setNewReleases(newTracks.slice(0, 5));
   };
 
-  const renderRecommendationItem = ({ item }: { item: DeezerTrack }) => (
-    <TouchableOpacity 
+  const renderRecommendationItem = ({item}: {item: DeezerTrack}) => (
+    <TouchableOpacity
       style={styles.recommendationItem}
-      onPress={() => navigation.navigate('PlayScreen', { trackId: item.id })}
-    >
-      <Image source={{ uri: item.album.cover_medium }} style={styles.albumCover} />
+      onPress={() => navigation.navigate('PlayScreen', {trackId: item.id})}>
+      <Image
+        source={{uri: item.album.cover_medium}}
+        style={styles.albumCover}
+      />
       <Text style={styles.trackTitle}>{item.title}</Text>
       <Text style={styles.artistName}>{item.artist.name}</Text>
     </TouchableOpacity>
   );
 
-  const renderTopSongItem = ({ item, index }: { item: DeezerTrack; index: number }) => (
-    <TouchableOpacity 
+  const renderTopSongItem = ({
+    item,
+    index,
+  }: {
+    item: DeezerTrack;
+    index: number;
+  }) => (
+    <TouchableOpacity
       style={styles.topSongItem}
-      onPress={() => navigation.navigate('PlayScreen', { trackId: item.id })}
-    >
+      onPress={() => navigation.navigate('PlayScreen', {trackId: item.id})}>
       <Text style={styles.rankNumber}>{index + 1}</Text>
-      <Image source={{ uri: item.album.cover_medium }} style={styles.topSongCover} />
+      <Image
+        source={{uri: item.album.cover_medium}}
+        style={styles.topSongCover}
+      />
       <View style={styles.songInfo}>
         <Text style={styles.songTitle}>{item.title}</Text>
         <Text style={styles.songArtist}>{item.artist.name}</Text>
       </View>
       <TouchableOpacity style={styles.moreButton}>
-        <Image source={require('../img/more_vert.png')} style={styles.moreIcon} />
+        <Image
+          source={require('../img/more_vert.png')}
+          style={styles.moreIcon}
+        />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -84,8 +98,12 @@ const Home = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recently Played</Text>
-          <TouchableOpacity>
-            <Image source={require('../img/Down.png')} style={styles.chevronIcon} />
+          <TouchableOpacity
+            onPress={() => navigation.navigate('RecentlyPlayed')}>
+            <Image
+              source={require('../img/Down.png')}
+              style={styles.chevronIcon}
+            />
           </TouchableOpacity>
         </View>
         <FlatList
@@ -100,13 +118,16 @@ const Home = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Top Songs</Text>
-          <TouchableOpacity>
-            <Image source={require('../img/Down.png')} style={styles.chevronIcon} />
+          <TouchableOpacity onPress={() => navigation.navigate('TopSongs')}>
+            <Image
+              source={require('../img/Down.png')}
+              style={styles.chevronIcon}
+            />
           </TouchableOpacity>
         </View>
         {topSongs.map((song, index) => (
           <View key={song.id.toString()}>
-            {renderTopSongItem({ item: song, index })}
+            {renderTopSongItem({item: song, index})}
           </View>
         ))}
       </View>
@@ -114,8 +135,11 @@ const Home = () => {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>New Releases</Text>
-          <TouchableOpacity>
-            <Image source={require('../img/Down.png')} style={styles.chevronIcon} />
+          <TouchableOpacity onPress={() => navigation.navigate('NewSongs')}>
+            <Image
+              source={require('../img/Down.png')}
+              style={styles.chevronIcon}
+            />
           </TouchableOpacity>
         </View>
         <FlatList

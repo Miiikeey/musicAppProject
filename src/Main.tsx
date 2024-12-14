@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {View, StyleSheet} from 'react-native';
@@ -11,8 +11,11 @@ import Login from './componants/login';
 import Profile from './componants/profile';
 import PlayScreen from './componants/playScreen';
 import ProfileEdit from './componants/profileEdit';
+import NewSongs from './componants/new';
+import TopSongs from './componants/top';
+import RecentlyPlayed from './componants/recent';
 import {RootStackParamList} from './types/navigation';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -35,7 +38,8 @@ const ScreenWithLayout = (Component: React.ComponentType<any>) => {
 const Main = () => {
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: '739921158481-q78h8l23j7ppr97hmtl84uhlbvqi7mv4.apps.googleusercontent.com',
+      webClientId:
+        '739921158481-q78h8l23j7ppr97hmtl84uhlbvqi7mv4.apps.googleusercontent.com',
       offlineAccess: true,
     });
   }, []);
@@ -46,34 +50,16 @@ const Main = () => {
         screenOptions={{
           header: () => null,
         }}>
-        <Stack.Screen 
-          name="Home" 
-          component={ScreenWithLayout(Home)} 
-        />
-        <Stack.Screen 
-          name="Search" 
-          component={ScreenWithLayout(Search)} 
-        />
-        <Stack.Screen 
-          name="Library" 
-          component={ScreenWithLayout(Library)} 
-        />
-        <Stack.Screen 
-          name="Login" 
-          component={Login} 
-        />
-        <Stack.Screen 
-          name="Profile" 
-          component={ScreenWithLayout(Profile)} 
-        />
-        <Stack.Screen 
-          name="PlayScreen" 
-          component={PlayScreen} 
-        />
-        <Stack.Screen 
-          name="ProfileEdit" 
-          component={ProfileEdit} 
-        />
+        <Stack.Screen name="Home" component={ScreenWithLayout(Home)} />
+        <Stack.Screen name="Search" component={ScreenWithLayout(Search)} />
+        <Stack.Screen name="Library" component={ScreenWithLayout(Library)} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Profile" component={ScreenWithLayout(Profile)} />
+        <Stack.Screen name="PlayScreen" component={PlayScreen} />
+        <Stack.Screen name="ProfileEdit" component={ProfileEdit} />
+        <Stack.Screen name="NewSongs" component={NewSongs} />
+        <Stack.Screen name="TopSongs" component={TopSongs} />
+        <Stack.Screen name="RecentlyPlayed" component={RecentlyPlayed} />
       </Stack.Navigator>
     </NavigationContainer>
   );

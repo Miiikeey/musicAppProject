@@ -10,13 +10,21 @@ import {
   Alert,
 } from 'react-native';
 import Header from './header';
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { GoogleSignin, type User } from '@react-native-google-signin/google-signin';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import {
+  GoogleSignin,
+  type User,
+} from '@react-native-google-signin/google-signin';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+GoogleSignin.configure({
+  webClientId:
+    '739921158481-q78h8l23j7ppr97hmtl84uhlbvqi7mv4.apps.googleusercontent.com',
+});
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -46,14 +54,17 @@ const Login = () => {
       setLoading(true);
       await GoogleSignin.hasPlayServices();
       await GoogleSignin.signIn();
-      const { accessToken } = await GoogleSignin.getTokens();
-      
-      const googleCredential = auth.GoogleAuthProvider.credential(accessToken);
+      const {idToken} = await GoogleSignin.getTokens();
+
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
       await auth().signInWithCredential(googleCredential);
       navigation.navigate('Home');
     } catch (error: any) {
       console.error(error);
-      Alert.alert('Error', error?.message || 'Something went wrong with Google Sign In');
+      Alert.alert(
+        'Error',
+        error?.message || 'Something went wrong with Google Sign In',
+      );
     } finally {
       setLoading(false);
     }
@@ -83,11 +94,10 @@ const Login = () => {
           placeholderTextColor="#888"
         />
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleEmailLogin}
-          disabled={loading}
-        >
+          disabled={loading}>
           <Text style={styles.buttonText}>
             {loading ? 'Loading...' : 'Login'}
           </Text>
@@ -99,12 +109,18 @@ const Login = () => {
           <View style={styles.line} />
         </View>
 
-        <TouchableOpacity 
-          style={[styles.socialButton, styles.googleButton, loading && styles.buttonDisabled]}
+        <TouchableOpacity
+          style={[
+            styles.socialButton,
+            styles.googleButton,
+            loading && styles.buttonDisabled,
+          ]}
           onPress={handleGoogleLogin}
-          disabled={loading}
-        >
-          <Image source={require('../img/GoogleLogo.png')} style={styles.socialIcon} />
+          disabled={loading}>
+          <Image
+            source={require('../img/GoogleLogo.png')}
+            style={styles.socialIcon}
+          />
           <Text style={styles.socialButtonText}>
             {loading ? 'Loading...' : 'Continue with Google'}
           </Text>

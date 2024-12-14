@@ -36,7 +36,7 @@ const PlayScreen = () => {
   useEffect(() => {
     if (sound && isPlaying && track?.duration) {
       const interval = setInterval(() => {
-        sound.getCurrentTime((seconds) => {
+        sound.getCurrentTime(seconds => {
           setCurrentTime(seconds);
           setProgress(seconds / track.duration);
         });
@@ -47,8 +47,8 @@ const PlayScreen = () => {
   }, [sound, isPlaying, track]);
 
   const loadTrack = async () => {
-    const { trackId, playlistId } = route.params;
-    
+    const {trackId, playlistId} = route.params;
+
     if (trackId) {
       const trackData = await deezerApi.getTrackDetails(trackId);
       if (trackData) {
@@ -123,17 +123,24 @@ const PlayScreen = () => {
           <Image source={require('../img/Down.png')} style={styles.iconSmall} />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Image source={require('../img/more_vert.png')} style={styles.iconSmall} />
+          <Image
+            source={require('../img/more_vert.png')}
+            style={styles.iconSmall}
+          />
         </TouchableOpacity>
       </View>
 
-      <Image
-        source={{uri: track.album.cover_medium}}
-        style={styles.albumArt}
-      />
+      <Image source={{uri: track.album.cover_medium}} style={styles.albumArt} />
 
       <View style={styles.trackInfo}>
-        <Text style={styles.trackTitle}>{track.title}</Text>
+        <Text
+          style={styles.trackTitle}
+          numberOfLines={1} // 한 줄로 제한
+          adjustsFontSizeToFit // 폰트를 자동으로 줄임
+          minimumFontScale={0.8} // 최소 폰트 크기 비율
+        >
+          {track.title}
+        </Text>
         <Text style={styles.artistName}>{track.artist.name}</Text>
       </View>
 
@@ -150,40 +157,67 @@ const PlayScreen = () => {
         />
         <View style={styles.timeContainer}>
           <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
-          <Text style={styles.timeText}>{formatTime(track?.duration || 0)}</Text>
+          <Text style={styles.timeText}>
+            {formatTime(track?.duration || 0)}
+          </Text>
         </View>
       </View>
 
       <View style={styles.controls}>
         <TouchableOpacity>
-          <Image source={require('../img/Shuffle.png')} style={styles.iconMedium} />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image source={require('../img/Prev.png')} style={styles.iconMedium} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={togglePlayPause} style={styles.playButton}>
-          <Image 
-            source={isPlaying ? require('../img/Stop.png') : require('../img/Play.png')} 
-            style={[styles.iconLarge, styles.whiteIcon]} 
+          <Image
+            source={require('../img/Shuffle.png')}
+            style={styles.iconMedium}
           />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Image source={require('../img/Next.png')} style={styles.iconMedium} />
+          <Image
+            source={require('../img/Prev.png')}
+            style={styles.iconMedium}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={togglePlayPause} style={styles.playButton}>
+          <Image
+            source={
+              isPlaying
+                ? require('../img/Stop.png')
+                : require('../img/Play.png')
+            }
+            style={[styles.iconLarge, styles.whiteIcon]}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Image source={require('../img/RepeatOne.png')} style={styles.iconMedium} />
+          <Image
+            source={require('../img/Next.png')}
+            style={styles.iconMedium}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Image
+            source={require('../img/RepeatOne.png')}
+            style={styles.iconMedium}
+          />
         </TouchableOpacity>
       </View>
 
       <View style={styles.bottomControls}>
         <TouchableOpacity>
-          <Image source={require('../img/Heart.png')} style={styles.iconMedium} />
+          <Image
+            source={require('../img/Heart.png')}
+            style={styles.iconMedium}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Image source={require('../img/Export.png')} style={styles.iconMedium} />
+          <Image
+            source={require('../img/Export.png')}
+            style={styles.iconMedium}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
-          <Image source={require('../img/Playlist.png')} style={styles.iconMedium} />
+          <Image
+            source={require('../img/Playlist.png')}
+            style={styles.iconMedium}
+          />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -202,10 +236,12 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   albumArt: {
-    width: '100%',
-    height: undefined,
-    aspectRatio: 1,
-    marginBottom: 32,
+    width: 350,
+    height: 350,
+    resizeMode: 'cover',
+    alignSelf: 'center',
+    marginBottom: 30,
+    marginTop: 30,
   },
   trackInfo: {
     alignItems: 'center',

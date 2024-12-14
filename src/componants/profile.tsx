@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,10 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
-import { deezerApi, type DeezerPlaylist } from '../services/deezerApi';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
+import {deezerApi, type DeezerPlaylist} from '../services/deezerApi';
 import auth from '@react-native-firebase/auth';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -52,27 +52,24 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Image style={styles.logo} source={require('../img/logo.png')} />
-      
       <View style={styles.profileSection}>
-        <Image 
-          style={styles.profileImage} 
-          source={require('../img/User.png')} 
+        <Image
+          style={styles.profileImage}
+          source={require('../img/User.png')}
         />
         <Text style={styles.profileName}>Elysia Ku</Text>
-        
+
         <View style={styles.profileButtons}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.editButton}
-            onPress={() => navigation.navigate('ProfileEdit')}
-          >
+            onPress={() => navigation.navigate('ProfileEdit')}>
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity style={styles.shareButton}>
-            <Image 
-              source={require('../img/Export.png')} 
-              style={styles.shareIcon} 
+            <Image
+              source={require('../img/Export.png')}
+              style={styles.shareIcon}
             />
           </TouchableOpacity>
         </View>
@@ -80,7 +77,10 @@ const Profile = () => {
 
       <TouchableOpacity style={styles.likedSongsSection}>
         <View style={styles.likedSongsLeft}>
-          <Image source={require('../img/Heart.png')} style={styles.heartIcon} />
+          <Image
+            source={require('../img/Heart.png')}
+            style={styles.heartIcon}
+          />
           <Text style={styles.likedSongsText}>Liked Songs</Text>
         </View>
         <Image source={require('../img/Down.png')} style={styles.chevronIcon} />
@@ -90,16 +90,25 @@ const Profile = () => {
         <Text style={styles.playlistsTitle}>Playlists</Text>
         <ScrollView>
           {playlists.map((playlist, index) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               key={playlist.id || index}
               style={styles.playlistItem}
-              onPress={() => navigation.navigate('PlayScreen', { playlistId: playlist.id })}
-            >
+              onPress={() =>
+                navigation.navigate('PlayScreen', {playlistId: playlist.id})
+              }>
               <View style={styles.playlistLeft}>
-                <Image source={require('../img/album_cover.png')} style={styles.playlistIcon} />
-                <Text style={styles.playlistName}>{`Playlist ${index + 1}`}</Text>
+                <Image
+                  source={require('../img/album_cover.png')}
+                  style={styles.playlistIcon}
+                />
+                <Text style={styles.playlistName}>{`Playlist ${
+                  index + 1
+                }`}</Text>
               </View>
-              <Image source={require('../img/Down.png')} style={styles.chevronIcon} />
+              <Image
+                source={require('../img/Down.png')}
+                style={styles.chevronIcon}
+              />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -112,12 +121,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  logo: {
-    width: 50,
-    height: 50,
-    marginTop: 16,
-    marginLeft: 16,
   },
   profileSection: {
     alignItems: 'center',
