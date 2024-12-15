@@ -1,14 +1,16 @@
 import {initializeApp} from 'firebase/app';
-import auth from '@react-native-firebase/auth';
+import {getAuth} from 'firebase/auth';
+import {getFirestore} from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyBcX8cbskEFdcaCq0pTKeZgectcZT1fXDQ',
-  authDomain: 'musicappplayer-768f6.firebaseapp.com',
-  projectId: 'musicappplayer-768f6',
-  storageBucket: 'musicappplayer-768f6.firebasestorage.app',
-  messagingSenderId: '739921158481',
-  appId: '1:739921158481:web:1c091fef663b2db026f370',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
-export const firebaseAuth = auth();
+export const auth = getAuth(app);
+export const db = getFirestore(app);

@@ -1,3 +1,5 @@
+'use client';
+
 import React, {useState} from 'react';
 import {
   View,
@@ -51,22 +53,21 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
-      setLoading(true);
-      await GoogleSignin.hasPlayServices();
-      await GoogleSignin.signIn();
+      await GoogleSignin.hasPlayServices(); // Google Play 서비스 확인
+      const userInfo = await GoogleSignin.signIn(); // 로그인 시도
       const {idToken} = await GoogleSignin.getTokens();
 
+      console.log('Google Sign-In Success:', userInfo); // 로그인 성공 정보
+      console.log('ID Token:', idToken);
+
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(googleCredential);
-      navigation.navigate('Home');
-    } catch (error: any) {
-      console.error(error);
-      Alert.alert(
-        'Error',
-        error?.message || 'Something went wrong with Google Sign In',
+      const userCredential = await auth().signInWithCredential(
+        googleCredential,
       );
-    } finally {
-      setLoading(false);
+
+      console.log('Firebase Auth Success:', userCredential.user); // Firebase 로그인 성공
+    } catch (error) {
+      console.error('Google Login Error:', error); // 오류 출력
     }
   };
 
