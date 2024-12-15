@@ -44,8 +44,10 @@ const RecentlyPlayed = () => {
   return (
     <View style={styles.container}>
       <Header />
-      <BackButton />
-      <Text style={styles.title}>Recently Played</Text>
+      <View style={styles.backAndTitle}>
+        <BackButton />
+        <Text style={styles.title}>Recently Played</Text>
+      </View>
       <Text style={styles.dateText}>2024.11.07</Text>
 
       <FlatList
@@ -63,6 +65,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  backAndTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   title: {
     fontSize: 24,

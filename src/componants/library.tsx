@@ -76,8 +76,10 @@ const Library = () => {
 
   return (
     <View style={styles.container}>
-      <BackButton />
-      <Text style={styles.title}>Library</Text>
+      <View style={styles.backAndTitle}>
+        <BackButton />
+        <Text style={styles.title}>Library</Text>
+      </View>
 
       <View style={styles.sectionButtons}>
         {renderSectionButton('favorites', 'Favorites')}
@@ -103,16 +105,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 16,
+  },
+  backAndTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginTop: 16,
+    marginLeft: 16,
   },
   sectionButtons: {
     flexDirection: 'row',
-    marginBottom: 16,
+    margin: 15,
     gap: 8,
   },
   sectionButton: {
