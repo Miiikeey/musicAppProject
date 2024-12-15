@@ -9,15 +9,14 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const Header = () => {
   const navigation = useNavigation<NavigationProp>();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 관리
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    // Firebase Auth 상태 변경 감지
     const unsubscribe = auth().onAuthStateChanged(user => {
-      setIsLoggedIn(!!user); // user가 있으면 true, 없으면 false
+      setIsLoggedIn(!!user);
     });
 
-    return () => unsubscribe(); // 컴포넌트 언마운트 시 구독 해제
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -35,7 +34,7 @@ const Header = () => {
           <Text style={styles.loginText}>LOG IN</Text>
         </TouchableOpacity>
       ) : (
-        <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+        <TouchableOpacity onPress={() => navigation.navigate('SideMenu')}>
           <Image style={styles.userIcon} source={require('../img/User.png')} />
         </TouchableOpacity>
       )}

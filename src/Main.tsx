@@ -15,6 +15,7 @@ import NewSongs from './componants/new';
 import TopSongs from './componants/top';
 import RecentlyPlayed from './componants/recent';
 import MiniPlayer from './componants/MiniPlayer';
+import SideMenu from './componants/sideMenu';
 import {RootStackParamList} from './types/navigation';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {MusicPlayerProvider} from './context/MusicPlayerContext';
@@ -59,6 +60,7 @@ const Main = () => {
           <Stack.Screen name="Library" component={ScreenWithLayout(Library)} />
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Profile" component={ScreenWithLayout(Profile)} />
+          <Stack.Screen name="SideMenu" component={SideMenu} />
           <Stack.Screen name="PlayScreen" component={PlayScreen} />
           <Stack.Screen name="ProfileEdit" component={ProfileEdit} />
           <Stack.Screen name="NewSongs" component={NewSongs} />

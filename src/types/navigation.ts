@@ -8,6 +8,7 @@ export type RootStackParamList = {
   NewSongs: undefined;
   TopSongs: undefined;
   RecentlyPlayed: undefined;
+  SideMenu: undefined;
   PlayScreen: {
     trackId?: number;
     playlistId?: number;

@@ -12,7 +12,6 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../types/navigation';
 import {deezerApi, DeezerTrack} from '../services/deezerApi';
-import MiniPlayer from './MiniPlayer';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 

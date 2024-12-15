@@ -1,60 +1,90 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
+import auth from '@react-native-firebase/auth';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const SideMenu = () => {
+  const navigation = useNavigation<NavigationProp>();
+
+  const handleLogout = async () => {
+    try {
+      await auth().signOut();
+      Alert.alert('Logged Out', 'You have been successfully logged out.');
+      navigation.navigate('Home');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to log out. Please try again later.');
+      console.error(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Close Button */}
-      <TouchableOpacity style={styles.closeButton}>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => navigation.goBack()}>
         <Image source={require('../img/Close.png')} style={styles.icon} />
       </TouchableOpacity>
 
       {/* Profile Section */}
-      <View style={styles.profileSection}>
+      <TouchableOpacity
+        style={styles.profileSection}
+        onPress={() => navigation.navigate('Profile')}>
         <Image
           source={require('../img/User.png')}
           style={styles.profileImage}
         />
         <Text style={styles.profileName}>Elysia Ku</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Menu Items */}
       <View style={styles.menuSection}>
-        <TouchableOpacity style={styles.menuItem}>
-          <Image
-            source={require('../img/Profile.png')} // View Profile 아이콘
-            style={styles.icon}
-          />
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Profile')}>
+          <Image source={require('../img/Profile.png')} style={styles.icon} />
           <Text style={styles.menuText}>View Profile</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('RecentlyPlayed')}>
           <Image
-            source={require('../img/TimeMachine.png')} // Recently Played 아이콘
+            source={require('../img/TimeMachine.png')}
             style={styles.icon}
           />
           <Text style={styles.menuText}>Recently Played</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Library')}>
           <Image
-            source={require('../img/MusicLibrary.png')} // Library 아이콘
+            source={require('../img/MusicLibrary.png')}
             style={styles.icon}
           />
           <Text style={styles.menuText}>Library</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem}>
-          <Image
-            source={require('../img/Settings.png')} // Settings 아이콘
-            style={styles.icon}
-          />
+          <Image source={require('../img/Settings.png')} style={styles.icon} />
           <Text style={styles.menuText}>Setting</Text>
         </TouchableOpacity>
       </View>
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>LOG OUT</Text>
       </TouchableOpacity>
     </View>
