@@ -6,8 +6,8 @@ const BackButton = () => {
   const navigation = useNavigation();
 
   return (
-    <TouchableOpacity 
-      style={styles.backButton} 
+    <TouchableOpacity
+      style={styles.backButton}
       onPress={() => navigation.goBack()}>
       <Text style={styles.backText}>←</Text>
     </TouchableOpacity>
@@ -26,4 +26,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BackButton; 
+export default BackButton;

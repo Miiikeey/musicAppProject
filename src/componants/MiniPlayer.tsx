@@ -2,8 +2,15 @@ import React from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import Slider from '@react-native-community/slider';
 import {useMusicPlayer} from '../context/MusicPlayerContext';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const MiniPlayer = () => {
+  const navigation = useNavigation<NavigationProp>();
+
   const {
     currentTrack,
     togglePlayPause,
@@ -17,7 +24,11 @@ const MiniPlayer = () => {
   if (!currentTrack) return null;
 
   return (
-    <View style={styles.miniPlayer}>
+    <TouchableOpacity
+      style={styles.miniPlayer}
+      onPress={() =>
+        navigation.navigate('PlayScreen', {trackId: currentTrack.id})
+      }>
       <Image source={{uri: currentTrack.albumCover}} style={styles.albumArt} />
       <View style={styles.trackInfo}>
         <Text style={styles.trackTitle} numberOfLines={1}>
@@ -44,7 +55,7 @@ const MiniPlayer = () => {
           style={styles.playIcon}
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 };
 

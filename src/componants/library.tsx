@@ -19,7 +19,8 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 type LibrarySection = 'favorites' | 'playlists' | 'albums';
 
 const Library = () => {
-  const [activeSection, setActiveSection] = useState<LibrarySection>('favorites');
+  const [activeSection, setActiveSection] =
+    useState<LibrarySection>('favorites');
   const [tracks, setTracks] = useState<DeezerTrack[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation<NavigationProp>();
@@ -77,7 +78,7 @@ const Library = () => {
     <View style={styles.container}>
       <BackButton />
       <Text style={styles.title}>Library</Text>
-      
+
       <View style={styles.sectionButtons}>
         {renderSectionButton('favorites', 'Favorites')}
         {renderSectionButton('playlists', 'Playlists')}

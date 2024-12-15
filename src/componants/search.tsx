@@ -57,7 +57,7 @@ const Search = () => {
         value={searchQuery}
         onChangeText={handleSearch}
       />
-      
+
       {isLoading ? (
         <ActivityIndicator size="large" color="#0090A8" />
       ) : (

@@ -12,20 +12,29 @@ const BottomNavBar = () => {
 
   return (
     <View style={styles.navBar}>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate('Home')}
         style={[styles.navItem, route.name === 'Home' && styles.activeNavItem]}>
         <Image source={require('../img/Home.png')} style={styles.navIcon} />
       </TouchableOpacity>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate('Search')}
-        style={[styles.navItem, route.name === 'Search' && styles.activeNavItem]}>
+        style={[
+          styles.navItem,
+          route.name === 'Search' && styles.activeNavItem,
+        ]}>
         <Image source={require('../img/search.png')} style={styles.navIcon} />
       </TouchableOpacity>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={() => navigation.navigate('Library')}
-        style={[styles.navItem, route.name === 'Library' && styles.activeNavItem]}>
-        <Image source={require('../img/MusicLibrary.png')} style={styles.navIcon} />
+        style={[
+          styles.navItem,
+          route.name === 'Library' && styles.activeNavItem,
+        ]}>
+        <Image
+          source={require('../img/MusicLibrary.png')}
+          style={styles.navIcon}
+        />
       </TouchableOpacity>
     </View>
   );
