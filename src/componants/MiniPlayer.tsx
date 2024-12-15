@@ -43,7 +43,7 @@ const MiniPlayer = () => {
           value={progress} // 0~1 사이의 값
           onValueChange={handleSliderChange} // 슬라이더 변경 처리 함수
           minimumTrackTintColor="#0090A8"
-          maximumTrackTintColor="#ddd"
+          maximumTrackTintColor="#C9C5C5"
           thumbTintColor="#0090A8"
         />
       </View>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     left: 5,
     right: 5,
     height: 80,
-    backgroundColor: '#A7D8DD',
+    backgroundColor: '#d1ebed',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
   trackTitle: {
     fontSize: 14,
     fontWeight: 'bold',
+    marginTop: 10,
   },
   artistName: {
     fontSize: 12,
@@ -97,6 +98,7 @@ const styles = StyleSheet.create({
   playIcon: {
     width: 30,
     height: 30,
+    padding: 20,
   },
 });
 

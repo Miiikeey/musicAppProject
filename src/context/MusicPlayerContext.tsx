@@ -7,23 +7,28 @@ import React, {
 } from 'react';
 import Sound from 'react-native-sound';
 
+type Song = {
+  id: number;
+  title: string;
+  artist: string;
+  albumCover: string;
+  duration: number;
+  previewUrl: string;
+};
+
 type MusicPlayerContextType = {
   isPlaying: boolean;
-  currentTrack: {
-    id: number;
-    title: string;
-    artist: string;
-    albumCover: string;
-    duration: number;
-    previewUrl: string;
-  } | null;
+  currentTrack: Song | null;
+  likedSongs: Song[];
   sound: Sound | null;
   progress: number;
   currentTime: number;
   togglePlayPause: () => void;
   minimizePlayer: () => void;
-  setTrack: (track: MusicPlayerContextType['currentTrack']) => void;
+  setTrack: (track: Song) => void;
   handleSliderChange: (value: number) => void;
+  addToLikedSongs: () => void;
+  removeFromLikedSongs: (id: number) => void;
 };
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(
@@ -36,8 +41,8 @@ export const MusicPlayerProvider = ({
   children: React.ReactNode;
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] =
-    useState<MusicPlayerContextType['currentTrack']>(null);
+  const [currentTrack, setCurrentTrack] = useState<Song | null>(null);
+  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
   const [sound, setSound] = useState<Sound | null>(null);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
@@ -47,7 +52,7 @@ export const MusicPlayerProvider = ({
       const interval = setInterval(() => {
         sound.getCurrentTime(seconds => {
           setCurrentTime(seconds);
-          setProgress(seconds / currentTrack.duration); // 진행 상태를 0~1로 계산
+          setProgress(seconds / currentTrack.duration);
         });
       }, 1000);
 
@@ -69,13 +74,13 @@ export const MusicPlayerProvider = ({
   const handleSliderChange = (value: number) => {
     if (sound && currentTrack?.duration) {
       const newTime = value * currentTrack.duration;
-      sound.setCurrentTime(newTime); // 새 시간 설정
-      setCurrentTime(newTime); // 상태 업데이트
-      setProgress(value); // 슬라이더 업데이트
+      sound.setCurrentTime(newTime);
+      setCurrentTime(newTime);
+      setProgress(value);
     }
   };
 
-  const setTrack = (track: MusicPlayerContextType['currentTrack']) => {
+  const setTrack = (track: Song) => {
     if (!track) return;
     if (sound) {
       sound.release();
@@ -88,8 +93,25 @@ export const MusicPlayerProvider = ({
     setCurrentTrack(track);
     setSound(newSound);
     setIsPlaying(true);
-    setProgress(0); // 새 트랙 로드 시 진행 상태 초기화
+    setProgress(0);
     setCurrentTime(0);
+  };
+
+  const addToLikedSongs = () => {
+    if (currentTrack) {
+      setLikedSongs(prevLikedSongs => {
+        if (!prevLikedSongs.some(song => song.id === currentTrack.id)) {
+          return [...prevLikedSongs, currentTrack];
+        }
+        return prevLikedSongs;
+      });
+    }
+  };
+
+  const removeFromLikedSongs = (id: number) => {
+    setLikedSongs(prevLikedSongs =>
+      prevLikedSongs.filter(song => song.id !== id),
+    );
   };
 
   return (
@@ -97,6 +119,7 @@ export const MusicPlayerProvider = ({
       value={{
         isPlaying,
         currentTrack,
+        likedSongs,
         sound,
         progress,
         currentTime,
@@ -104,6 +127,8 @@ export const MusicPlayerProvider = ({
         minimizePlayer: () => setIsPlaying(false),
         setTrack,
         handleSliderChange,
+        addToLikedSongs,
+        removeFromLikedSongs,
       }}>
       {children}
     </MusicPlayerContext.Provider>

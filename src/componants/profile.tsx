@@ -75,7 +75,9 @@ const Profile = () => {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.likedSongsSection}>
+      <TouchableOpacity
+        style={styles.likedSongsSection}
+        onPress={() => navigation.navigate('LikedSongs')}>
         <View style={styles.likedSongsLeft}>
           <Image
             source={require('../img/Heart.png')}

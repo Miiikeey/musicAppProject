@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import BottomNavBar from './BottomNavBar';
 import Header from './header';
+import BackButton from './BackButton';
 
 const songs = [
   {
@@ -43,7 +44,8 @@ const RecentlyPlayed = () => {
   return (
     <View style={styles.container}>
       <Header />
-
+      <BackButton />
+      <Text style={styles.title}>Recently Played</Text>
       <Text style={styles.dateText}>2024.11.07</Text>
 
       <FlatList
@@ -62,27 +64,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  logo: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  headerText: {
-    fontSize: 18,
+  title: {
+    fontSize: 24,
     fontWeight: 'bold',
-  },
-  profileIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    marginTop: 16,
+    marginLeft: 16,
   },
   dateText: {
     fontSize: 14,

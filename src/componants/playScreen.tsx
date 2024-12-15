@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   SafeAreaView,
+  ToastAndroid,
 } from 'react-native';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../types/navigation';
@@ -20,7 +21,7 @@ type PlayScreenRouteProp = RouteProp<RootStackParamList, 'PlayScreen'>;
 
 const PlayScreen = () => {
   const route = useRoute<PlayScreenRouteProp>();
-  const {setTrack: setGlobalTrack} = useMusicPlayer();
+  const {setTrack: setGlobalTrack, addToLikedSongs} = useMusicPlayer();
   const [track, setTrack] = useState<DeezerTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sound, setSound] = useState<Sound | null>(null);
@@ -126,6 +127,11 @@ const PlayScreen = () => {
     navigation.goBack();
   };
 
+  const handleLikeSong = () => {
+    addToLikedSongs();
+    ToastAndroid.show('Added to Liked Songs!', ToastAndroid.SHORT);
+  };
+
   if (!track) {
     return (
       <View style={styles.loadingContainer}>
@@ -169,7 +175,7 @@ const PlayScreen = () => {
           value={progress}
           onValueChange={handleSliderChange}
           minimumTrackTintColor="#0090A8"
-          maximumTrackTintColor="#ddd"
+          maximumTrackTintColor="#C9C5C5"
           thumbTintColor="#0090A8"
         />
         <View style={styles.timeContainer}>
@@ -218,7 +224,7 @@ const PlayScreen = () => {
       </View>
 
       <View style={styles.bottomControls}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleLikeSong}>
           <Image
             source={require('../img/Heart.png')}
             style={styles.iconMedium}
