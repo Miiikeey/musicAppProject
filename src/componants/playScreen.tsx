@@ -16,6 +16,7 @@ import Sound from 'react-native-sound';
 import Slider from '@react-native-community/slider';
 import {useNavigation} from '@react-navigation/native';
 import {useMusicPlayer} from '../context/MusicPlayerContext';
+import Share from 'react-native-share'; // 공유 라이브러리 추가
 
 type PlayScreenRouteProp = RouteProp<RootStackParamList, 'PlayScreen'>;
 
@@ -132,6 +133,33 @@ const PlayScreen = () => {
     ToastAndroid.show('Added to Liked Songs!', ToastAndroid.SHORT);
   };
 
+  const handleShareSong = () => {
+    if (track) {
+      const shareOptions = {
+        title: `Listen to ${track.title} by ${track.artist.name}`,
+        message: `Check out this track: "${track.title}" by ${track.artist.name}!`,
+        url: track.preview,
+      };
+
+      Share.open(shareOptions)
+        .then(res => {
+          console.log('Shared successfully:', res);
+          ToastAndroid.show('Shared successfully!', ToastAndroid.SHORT);
+        })
+        .catch(err => {
+          if (err?.message === 'User did not share') {
+            console.log('Share cancelled by user');
+          } else {
+            console.error('Error sharing:', err);
+            ToastAndroid.show(
+              'Error occurred during sharing.',
+              ToastAndroid.SHORT,
+            );
+          }
+        });
+    }
+  };
+
   if (!track) {
     return (
       <View style={styles.loadingContainer}>
@@ -230,7 +258,7 @@ const PlayScreen = () => {
             style={styles.iconMedium}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleShareSong}>
           <Image
             source={require('../img/Export.png')}
             style={styles.iconMedium}
