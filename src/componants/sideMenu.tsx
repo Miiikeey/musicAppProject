@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,15 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const SideMenu = () => {
   const navigation = useNavigation<NavigationProp>();
+  const [profileName, setProfileName] = useState<string>('');
+
+  useEffect(() => {
+    const user = auth().currentUser;
+    if (user) {
+      // 유저의 displayName이 없으면 email을 보여줌
+      setProfileName(user.displayName || user.email || 'User');
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -45,7 +54,7 @@ const SideMenu = () => {
           source={require('../img/User.png')}
           style={styles.profileImage}
         />
-        <Text style={styles.profileName}>Elysia Ku</Text>
+        <Text style={styles.profileName}>{profileName}</Text>
       </TouchableOpacity>
 
       {/* Menu Items */}
@@ -106,8 +115,8 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   profileImage: {
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
     borderRadius: 30,
   },
   profileName: {

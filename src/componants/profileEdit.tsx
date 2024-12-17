@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,54 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import auth from '@react-native-firebase/auth';
 import BackButton from './BackButton';
 
 const ProfileEdit = () => {
+  const [userInfo, setUserInfo] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+  });
+
+  useEffect(() => {
+    const user = auth().currentUser;
+
+    if (user) {
+      setUserInfo({
+        username: user.displayName || '',
+        email: user.email || '',
+        password: '',
+        confirmPassword: '',
+        phone: user.phoneNumber || '',
+      });
+    }
+  }, []);
+
+  const handleInputChange = (field: string, value: string) => {
+    setUserInfo({...userInfo, [field]: value});
+  };
+
+  const handleSave = () => {
+    const user = auth().currentUser;
+    if (user) {
+      const updates: any = {};
+      if (userInfo.username) updates.displayName = userInfo.username;
+      if (userInfo.phone) updates.phoneNumber = userInfo.phone;
+
+      user.updateProfile(updates).then(() => {
+        console.log('Profile updated');
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <BackButton />
-      {/* 제목 */}
       <Text style={styles.title}>Edit Profile</Text>
 
-      {/* 프로필 이미지 */}
       <View style={styles.profileContainer}>
         <Image
           source={require('../img/User.png')}
@@ -30,39 +68,48 @@ const ProfileEdit = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Input section */}
       <View style={styles.inputSection}>
         <Text style={styles.label}>Username</Text>
-        <TextInput style={styles.input} />
+        <TextInput
+          style={styles.input}
+          value={userInfo.username}
+          onChangeText={text => handleInputChange('username', text)}
+        />
 
         <Text style={styles.label}>Email</Text>
         <TextInput
           style={[styles.input, styles.disabledInput]}
+          value={userInfo.email}
           editable={false}
         />
 
         <Text style={styles.label}>Password</Text>
-        <TextInput style={styles.input} secureTextEntry />
+        <TextInput
+          style={styles.input}
+          value={userInfo.password}
+          onChangeText={text => handleInputChange('password', text)}
+          secureTextEntry
+        />
 
         <Text style={styles.label}>Confirmed Password</Text>
-        <TextInput style={styles.input} secureTextEntry />
+        <TextInput
+          style={styles.input}
+          value={userInfo.confirmPassword}
+          onChangeText={text => handleInputChange('confirmPassword', text)}
+          secureTextEntry
+        />
 
         <Text style={styles.label}>Phone</Text>
-        <TextInput style={styles.input} keyboardType="phone-pad" />
-
-        {/* Subscription Plan */}
-        <Text style={styles.label}>Subscription Plan</Text>
-        <View style={styles.subscriptionRow}>
-          <Text style={styles.subscriptionText}>Premium</Text>
-          <TouchableOpacity style={styles.editSubscriptionButton}>
-            <Text style={styles.editSubscriptionText}>Edit</Text>
-          </TouchableOpacity>
-        </View>
+        <TextInput
+          style={styles.input}
+          value={userInfo.phone}
+          onChangeText={text => handleInputChange('phone', text)}
+          keyboardType="phone-pad"
+        />
       </View>
 
-      {/* Save Button */}
       <View style={styles.saveButtonContainer}>
-        <TouchableOpacity style={styles.saveButton}>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
       </View>
@@ -124,26 +171,6 @@ const styles = StyleSheet.create({
   disabledInput: {
     backgroundColor: '#f0f0f0',
     color: '#999',
-  },
-  subscriptionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  subscriptionText: {
-    fontSize: 16,
-  },
-  editSubscriptionButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 20,
-  },
-  editSubscriptionText: {
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   saveButtonContainer: {
     alignItems: 'center',

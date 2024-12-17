@@ -20,6 +20,14 @@ const Profile = () => {
   const navigation = useNavigation<NavigationProp>();
   const [playlists, setPlaylists] = useState<DeezerPlaylist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileName, setProfileName] = useState<string>('');
+
+  useEffect(() => {
+    const user = auth().currentUser;
+    if (user) {
+      setProfileName(user.displayName || user.email || 'User');
+    }
+  }, []);
 
   const fetchUserPlaylists = async () => {
     try {
@@ -57,20 +65,13 @@ const Profile = () => {
           style={styles.profileImage}
           source={require('../img/User.png')}
         />
-        <Text style={styles.profileName}>Elysia Ku</Text>
+        <Text style={styles.profileName}>{profileName}</Text>
 
         <View style={styles.profileButtons}>
           <TouchableOpacity
             style={styles.editButton}
             onPress={() => navigation.navigate('ProfileEdit')}>
             <Text style={styles.editButtonText}>Edit</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.shareButton}>
-            <Image
-              source={require('../img/Export.png')}
-              style={styles.shareIcon}
-            />
           </TouchableOpacity>
         </View>
       </View>
