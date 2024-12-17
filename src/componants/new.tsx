@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,36 +9,35 @@ import {
 } from 'react-native';
 import BottomNavBar from './BottomNavBar';
 import Header from './header';
+import BackButton from './BackButton';
+import {deezerApi, DeezerTrack} from '../services/deezerApi';
 
-type Song = {
-  id: string;
-  title: string;
-  artist: string;
-  image: any;
-};
-
-const NewSongs = () => {
-  // 필터 상태 관리
+const NewReleases = () => {
   const [activeFilter, setActiveFilter] = useState<string>('Song');
+  const [newReleases, setNewReleases] = useState<DeezerTrack[]>([]);
 
-  // Sample Data
-  const songs: Song[] = [
-    {
-      id: '1',
-      title: 'Trouble',
-      artist: 'Christopher & Lee young Ji',
-      image: require('../img/album_cover.png'),
-    },
-  ];
+  useEffect(() => {
+    fetchNewReleases();
+  }, []);
 
-  // 각 곡의 항목 렌더링
-  const renderSong = ({item}: {item: Song}) => (
+  const fetchNewReleases = async () => {
+    try {
+      const newTracks = await deezerApi.getTopTracks();
+      setNewReleases(newTracks.slice(0, 10));
+    } catch (error) {
+      console.error('Error fetching new releases:', error);
+    }
+  };
+
+  const renderSong = ({item, index}: {item: DeezerTrack; index: number}) => (
     <View style={styles.songContainer}>
-      <Text style={styles.songRank}>{item.id}</Text>
-      <Image source={item.image} style={styles.songImage} />
+      <Text style={styles.songRank}>{index + 1}</Text>
+      <Image source={{uri: item.album.cover_medium}} style={styles.songImage} />
       <View style={styles.songInfo}>
-        <Text style={styles.songTitle}>{item.title}</Text>
-        <Text style={styles.songArtist}>{item.artist}</Text>
+        <Text style={styles.songTitle} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text style={styles.songArtist}>{item.artist.name}</Text>
       </View>
       <TouchableOpacity>
         <Image
@@ -49,7 +48,6 @@ const NewSongs = () => {
     </View>
   );
 
-  // 필터 버튼 렌더링 함수
   const renderFilterButton = (filterName: string) => (
     <TouchableOpacity
       style={[
@@ -70,28 +68,26 @@ const NewSongs = () => {
 
   return (
     <View style={styles.container}>
-      {/* 상단 헤더 */}
       <Header />
+      <View style={styles.backAndTitle}>
+        <BackButton />
+        <Text style={styles.title}>New Releases</Text>
+      </View>
 
-      {/* 제목 */}
-      <Text style={styles.title}>New Releases</Text>
-
-      {/* 필터 버튼 */}
       <View style={styles.filterContainer}>
         {renderFilterButton('Song')}
         {renderFilterButton('Album')}
-        {renderFilterButton('Vedio')}
+        {renderFilterButton('Video')}
       </View>
 
-      {/* 곡 목록 */}
       <FlatList
-        data={songs}
+        data={newReleases}
         renderItem={renderSong}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         style={styles.songList}
+        showsVerticalScrollIndicator={false}
       />
 
-      {/* 하단 네비게이션 */}
       <BottomNavBar />
     </View>
   );
@@ -101,6 +97,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  backAndTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
   },
   title: {
     fontSize: 24,
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   songRank: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#0090A8',
     marginRight: 16,
@@ -171,4 +172,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewSongs;
+export default NewReleases;
