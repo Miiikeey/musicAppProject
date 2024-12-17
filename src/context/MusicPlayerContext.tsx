@@ -2,7 +2,7 @@ import React, {createContext, useContext, useState, useEffect} from 'react';
 import Sound from 'react-native-sound';
 import {deezerApi} from '../services/deezerApi';
 
-type Song = {
+export type Song = {
   id: number;
   title: string;
   artist: string;
@@ -20,10 +20,15 @@ type MusicPlayerContextType = {
   sound: Sound | null;
   progress: number;
   currentTime: number;
+  isRepeatOne: boolean;
   setTrack: (track: Song) => void;
   setPlaylist: (tracks: Song[]) => void;
+  addToPlaylist: (track: Song) => void;
   togglePlayPause: () => void;
   playNextTrack: () => void;
+  playPrevTrack: () => void;
+  shufflePlaylist: () => void;
+  toggleRepeatOne: () => void;
   handleSliderChange: (value: number) => void;
   addToLikedSongs: () => void;
   removeFromLikedSongs: (id: number) => void;
@@ -47,6 +52,7 @@ export const MusicPlayerProvider = ({
   const [sound, setSound] = useState<Sound | null>(null);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isRepeatOne, setIsRepeatOne] = useState(false);
 
   useEffect(() => {
     if (sound && isPlaying) {
@@ -97,6 +103,15 @@ export const MusicPlayerProvider = ({
     if (tracks.length > 0) setTrack(tracks[0]);
   };
 
+  const addToPlaylist = (track: Song) => {
+    setPlaylistState(prevPlaylist => {
+      if (!prevPlaylist.some(song => song.id === track.id)) {
+        return [...prevPlaylist, track];
+      }
+      return prevPlaylist;
+    });
+  };
+
   const togglePlayPause = () => {
     if (sound) {
       if (isPlaying) {
@@ -108,13 +123,39 @@ export const MusicPlayerProvider = ({
     }
   };
 
+  const shufflePlaylist = () => {
+    const shuffledPlaylist = [...playlist];
+    for (let i = shuffledPlaylist.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledPlaylist[i], shuffledPlaylist[j]] = [
+        shuffledPlaylist[j],
+        shuffledPlaylist[i],
+      ];
+    }
+    setPlaylistState(shuffledPlaylist);
+  };
+
+  const toggleRepeatOne = () => {
+    setIsRepeatOne(prev => !prev);
+  };
+
   const playNextTrack = () => {
     if (playlist.length > 0) {
       const currentIndex = playlist.findIndex(
         song => song.id === currentTrack?.id,
       );
-      const nextIndex = (currentIndex + 1) % playlist.length; // 루프 재생
+      const nextIndex = (currentIndex + 1) % playlist.length;
       setTrack(playlist[nextIndex]);
+    }
+  };
+
+  const playPrevTrack = () => {
+    if (playlist.length > 0) {
+      const currentIndex = playlist.findIndex(
+        song => song.id === currentTrack?.id,
+      );
+      const prevIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+      setTrack(playlist[prevIndex]);
     }
   };
 
@@ -175,10 +216,15 @@ export const MusicPlayerProvider = ({
         sound,
         progress,
         currentTime,
+        isRepeatOne,
         setTrack,
         setPlaylist,
+        addToPlaylist,
         togglePlayPause,
         playNextTrack,
+        playPrevTrack,
+        shufflePlaylist,
+        toggleRepeatOne,
         handleSliderChange,
         addToLikedSongs,
         removeFromLikedSongs,

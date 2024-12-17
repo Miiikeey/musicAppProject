@@ -14,6 +14,7 @@ import BottomNavBar from './BottomNavBar';
 import Header from './header';
 import BackButton from './BackButton';
 import {deezerApi, DeezerTrack} from '../services/deezerApi';
+import MoreButton from './MoreButton';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -47,12 +48,7 @@ const NewReleases = () => {
         </Text>
         <Text style={styles.songArtist}>{item.artist.name}</Text>
       </View>
-      <TouchableOpacity>
-        <Image
-          source={require('../img/more_vert.png')}
-          style={styles.moreIcon}
-        />
-      </TouchableOpacity>
+      <MoreButton />
     </TouchableOpacity>
   );
 

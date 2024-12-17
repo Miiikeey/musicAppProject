@@ -8,15 +8,15 @@ import {
   ActivityIndicator,
   SafeAreaView,
   ToastAndroid,
+  FlatList,
 } from 'react-native';
 import {useRoute, RouteProp} from '@react-navigation/native';
 import {RootStackParamList} from '../types/navigation';
-import {deezerApi, DeezerTrack} from '../services/deezerApi';
-import Sound from 'react-native-sound';
 import Slider from '@react-native-community/slider';
 import {useNavigation} from '@react-navigation/native';
 import {useMusicPlayer} from '../context/MusicPlayerContext';
 import Share from 'react-native-share';
+import MoreButton from './MoreButton';
 
 type PlayScreenRouteProp = RouteProp<RootStackParamList, 'PlayScreen'>;
 
@@ -35,7 +35,15 @@ const PlayScreen = () => {
     fetchTrackDetails,
     fetchPlaylist,
     addToLikedSongs,
+    playlist,
+    playNextTrack,
+    playPrevTrack,
+    toggleRepeatOne,
+    shufflePlaylist,
+    isRepeatOne,
   } = useMusicPlayer();
+
+  const [isPlaylistVisible, setIsPlaylistVisible] = useState(false);
 
   useEffect(() => {
     const {trackId, playlistId} = route.params;
@@ -91,6 +99,10 @@ const PlayScreen = () => {
     }
   };
 
+  const togglePlaylist = () => {
+    setIsPlaylistVisible(prev => !prev);
+  };
+
   if (!currentTrack) {
     return (
       <View style={styles.loadingContainer}>
@@ -105,12 +117,7 @@ const PlayScreen = () => {
         <TouchableOpacity onPress={minimizePlayer}>
           <Image source={require('../img/Down.png')} style={styles.iconSmall} />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <Image
-            source={require('../img/more_vert.png')}
-            style={styles.iconSmall}
-          />
-        </TouchableOpacity>
+        <MoreButton />
       </View>
 
       <Image source={{uri: currentTrack.albumCover}} style={styles.albumArt} />
@@ -145,13 +152,13 @@ const PlayScreen = () => {
       </View>
 
       <View style={styles.controls}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={shufflePlaylist}>
           <Image
             source={require('../img/Shuffle.png')}
             style={styles.iconMedium}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={playPrevTrack}>
           <Image
             source={require('../img/Prev.png')}
             style={styles.iconMedium}
@@ -167,15 +174,19 @@ const PlayScreen = () => {
             style={styles.iconLarge}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={playNextTrack}>
           <Image
             source={require('../img/Next.png')}
             style={styles.iconMedium}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={toggleRepeatOne}>
           <Image
-            source={require('../img/RepeatOne.png')}
+            source={
+              isRepeatOne
+                ? require('../img/RepeatOne.png')
+                : require('../img/RepeatOne.png')
+            }
             style={styles.iconMedium}
           />
         </TouchableOpacity>
@@ -194,13 +205,28 @@ const PlayScreen = () => {
             style={styles.iconMedium}
           />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={togglePlaylist}>
           <Image
             source={require('../img/Playlist.png')}
             style={styles.iconMedium}
           />
         </TouchableOpacity>
       </View>
+
+      {isPlaylistVisible && (
+        <View style={styles.playlistContainer}>
+          <Text style={styles.playlistTitle}>Playlist</Text>
+          <FlatList
+            data={playlist}
+            renderItem={({item}) => (
+              <View style={styles.playlistItem}>
+                <Text>{item.title}</Text>
+              </View>
+            )}
+            keyExtractor={item => item.id.toString()}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -295,8 +321,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  whiteIcon: {
-    tintColor: '#fff',
+  playlistContainer: {
+    position: 'absolute',
+    top: 100,
+    left: 20,
+    right: 20,
+    bottom: 20,
+    backgroundColor: 'white',
+    height: 500,
+    padding: 16,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  playlistTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  playlistItem: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
 });
 

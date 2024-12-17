@@ -12,6 +12,9 @@ import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../types/navigation';
 import {deezerApi, DeezerTrack} from '../services/deezerApi';
+import {useMusicPlayer} from '../context/MusicPlayerContext';
+import {Song} from '../context/MusicPlayerContext';
+import MoreButton from './MoreButton';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -21,6 +24,7 @@ const Home = () => {
   const [recentlyPlayed, setRecentlyPlayed] = useState<DeezerTrack[]>([]);
   const [topSongs, setTopSongs] = useState<DeezerTrack[]>([]);
   const [newReleases, setNewReleases] = useState<DeezerTrack[]>([]);
+  const {setTrack} = useMusicPlayer();
 
   useEffect(() => {
     fetchData();
@@ -41,10 +45,25 @@ const Home = () => {
     setNewReleases(newTracks.slice(0, 5));
   };
 
+  const convertDeezerTrackToSong = (deezerTrack: DeezerTrack): Song => {
+    return {
+      id: deezerTrack.id,
+      title: deezerTrack.title,
+      artist: deezerTrack.artist.name,
+      albumCover: deezerTrack.album.cover_medium,
+      duration: deezerTrack.duration,
+      previewUrl: deezerTrack.preview,
+    };
+  };
+
   const renderRecommendationItem = ({item}: {item: DeezerTrack}) => (
     <TouchableOpacity
       style={styles.recommendationItem}
-      onPress={() => navigation.navigate('PlayScreen', {trackId: item.id})}>
+      onPress={() => {
+        const song = convertDeezerTrackToSong(item);
+        setTrack(song);
+        navigation.navigate('PlayScreen', {trackId: song.id});
+      }}>
       <Image
         source={{uri: item.album.cover_medium}}
         style={styles.albumCover}
@@ -73,12 +92,7 @@ const Home = () => {
         <Text style={styles.songTitle}>{item.title}</Text>
         <Text style={styles.songArtist}>{item.artist.name}</Text>
       </View>
-      <TouchableOpacity style={styles.moreButton}>
-        <Image
-          source={require('../img/more_vert.png')}
-          style={styles.moreIcon}
-        />
-      </TouchableOpacity>
+      <MoreButton />
     </TouchableOpacity>
   );
 
