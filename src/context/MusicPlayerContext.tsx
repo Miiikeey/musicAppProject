@@ -20,12 +20,15 @@ type MusicPlayerContextType = {
   isPlaying: boolean;
   currentTrack: Song | null;
   likedSongs: Song[];
+  playlist: Song[];
   sound: Sound | null;
   progress: number;
   currentTime: number;
   togglePlayPause: () => void;
   minimizePlayer: () => void;
   setTrack: (track: Song) => void;
+  setPlaylist: (tracks: Song[]) => void;
+  playNextTrack: () => void;
   handleSliderChange: (value: number) => void;
   addToLikedSongs: () => void;
   removeFromLikedSongs: (id: number) => void;
@@ -43,9 +46,22 @@ export const MusicPlayerProvider = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<Song | null>(null);
   const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+  const [playlist, setPlaylistState] = useState<Song[]>([]);
   const [sound, setSound] = useState<Sound | null>(null);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+
+  useEffect(() => {
+    if (sound) {
+      sound.play(success => {
+        if (success) {
+          playNextTrack();
+        } else {
+          console.error('Playback failed due to audio decoding errors.');
+        }
+      });
+    }
+  }, [sound]);
 
   useEffect(() => {
     if (sound && isPlaying && currentTrack?.duration) {
@@ -82,19 +98,51 @@ export const MusicPlayerProvider = ({
 
   const setTrack = (track: Song) => {
     if (!track) return;
+
     if (sound) {
       sound.release();
     }
+
     const newSound = new Sound(track.previewUrl, '', error => {
       if (!error) {
+        console.log('Sound initialized:', track.title);
         setSound(newSound);
+      } else {
+        console.error('Error initializing sound:', error);
       }
     });
+
     setCurrentTrack(track);
     setSound(newSound);
     setIsPlaying(true);
     setProgress(0);
     setCurrentTime(0);
+  };
+
+  const setPlaylist = (tracks: Song[]) => {
+    setPlaylistState(tracks);
+    if (tracks.length > 0) {
+      setTrack(tracks[0]);
+    }
+  };
+
+  const playNextTrack = () => {
+    if (playlist.length > 0) {
+      const currentIndex = playlist.findIndex(
+        song => song.id === currentTrack?.id,
+      );
+      const nextIndex = currentIndex + 1;
+
+      if (nextIndex < playlist.length) {
+        setTrack(playlist[nextIndex]);
+      } else {
+        setIsPlaying(false);
+        setCurrentTrack(null);
+        setSound(null);
+        setProgress(0);
+        setCurrentTime(0);
+      }
+    }
   };
 
   const addToLikedSongs = () => {
@@ -120,12 +168,15 @@ export const MusicPlayerProvider = ({
         isPlaying,
         currentTrack,
         likedSongs,
+        playlist,
         sound,
         progress,
         currentTime,
         togglePlayPause,
         minimizePlayer: () => setIsPlaying(false),
         setTrack,
+        setPlaylist,
+        playNextTrack,
         handleSliderChange,
         addToLikedSongs,
         removeFromLikedSongs,
