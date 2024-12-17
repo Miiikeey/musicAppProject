@@ -21,7 +21,6 @@ const SideMenu = () => {
   useEffect(() => {
     const user = auth().currentUser;
     if (user) {
-      // 유저의 displayName이 없으면 email을 보여줌
       setProfileName(user.displayName || user.email || 'User');
     }
   }, []);

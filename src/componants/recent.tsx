@@ -1,45 +1,82 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   Image,
-  FlatList,
+  SectionList,
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
+import {deezerApi} from '../services/deezerApi';
 import BottomNavBar from './BottomNavBar';
 import Header from './header';
 import BackButton from './BackButton';
 
-const songs = [
-  {
-    id: '1',
-    title: 'Heart of Gold',
-    artist: 'Shawn Mendes',
-    image: '../img/album_cover.png',
-  },
-];
-
-type Song = {
-  id: string;
-  title: string;
-  artist: string;
-  image: string;
-};
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const RecentlyPlayed = () => {
-  const renderSongItem = ({item}: {item: Song}) => (
-    <View style={styles.songItem}>
+  const [sections, setSections] = useState<any[]>([]);
+  const navigation = useNavigation<NavigationProp>();
+
+  useEffect(() => {
+    loadRecentlyPlayed();
+  }, []);
+
+  const loadRecentlyPlayed = async () => {
+    const tracks = await fetchRecentlyPlayed();
+
+    const groupedRecords: {[key: string]: any[]} = {};
+    tracks.forEach(track => {
+      if (!groupedRecords[track.date]) {
+        groupedRecords[track.date] = [];
+      }
+      groupedRecords[track.date].push(track);
+    });
+
+    setSections(
+      Object.keys(groupedRecords).map(date => ({
+        title: date,
+        data: groupedRecords[date],
+      })),
+    );
+  };
+
+  const fetchRecentlyPlayed = async () => {
+    try {
+      const response = await deezerApi.getTopTracks();
+      return response.map((track: any) => ({
+        id: track.id,
+        title: track.title,
+        artist: track.artist.name,
+        image: track.album.cover_medium,
+        date: new Date().toISOString().split('T')[0],
+      }));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return [];
+    }
+  };
+
+  const renderSongItem = ({item}: {item: any}) => (
+    <TouchableOpacity
+      style={styles.songItem}
+      onPress={() => navigation.navigate('PlayScreen', {trackId: item.id})}>
       <Image source={{uri: item.image}} style={styles.songImage} />
       <View style={styles.songInfo}>
         <Text style={styles.songTitle}>{item.title}</Text>
         <Text style={styles.songArtist}>{item.artist}</Text>
       </View>
-      <TouchableOpacity style={styles.moreButton}>
-        <Text style={styles.moreText}>⋮</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
+
+  const renderSectionHeader = ({
+    section: {title},
+  }: {
+    section: {title: string};
+  }) => <Text style={styles.sectionHeader}>{title}</Text>;
 
   return (
     <View style={styles.container}>
@@ -48,14 +85,15 @@ const RecentlyPlayed = () => {
         <BackButton />
         <Text style={styles.title}>Recently Played</Text>
       </View>
-      <Text style={styles.dateText}>2024.11.07</Text>
 
-      <FlatList
-        data={songs}
+      <SectionList
+        sections={sections}
         renderItem={renderSongItem}
+        renderSectionHeader={renderSectionHeader}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.songList}
       />
+
       <BottomNavBar />
     </View>
   );
@@ -77,11 +115,13 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginLeft: 16,
   },
-  dateText: {
-    fontSize: 14,
-    color: '#888',
-    marginLeft: 16,
-    marginTop: 8,
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    backgroundColor: '#f8f8f8',
+    margin: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
   },
   songList: {
     paddingHorizontal: 16,
@@ -108,29 +148,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginTop: 4,
-  },
-  moreButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  moreText: {
-    fontSize: 18,
-    color: '#666',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    paddingVertical: 12,
-  },
-  navButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navText: {
-    fontSize: 20,
   },
 });
 

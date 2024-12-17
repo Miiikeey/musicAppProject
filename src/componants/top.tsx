@@ -7,14 +7,20 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../types/navigation';
 import BottomNavBar from './BottomNavBar';
 import Header from './header';
 import BackButton from './BackButton';
 import {deezerApi, DeezerTrack} from '../services/deezerApi';
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 const TopSongs = () => {
   const [activeFilter, setActiveFilter] = useState<string>('By period');
   const [topTracks, setTopTracks] = useState<DeezerTrack[]>([]);
+  const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
     fetchTopTracks();
@@ -30,7 +36,9 @@ const TopSongs = () => {
   };
 
   const renderSong = ({item, index}: {item: DeezerTrack; index: number}) => (
-    <View style={styles.songContainer}>
+    <TouchableOpacity
+      style={styles.songContainer}
+      onPress={() => navigation.navigate('PlayScreen', {trackId: item.id})}>
       <Text style={styles.songRank}>{index + 1}</Text>
       <Image source={{uri: item.album.cover_medium}} style={styles.songImage} />
       <View style={styles.songInfo}>
@@ -45,7 +53,7 @@ const TopSongs = () => {
           style={styles.moreIcon}
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   const renderFilterButton = (filterName: string) => (
