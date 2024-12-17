@@ -185,7 +185,7 @@ const PlayScreen = () => {
             source={
               isRepeatOne
                 ? require('../img/RepeatOne.png')
-                : require('../img/RepeatOne.png')
+                : require('../img/RepeatOneOff.png')
             }
             style={styles.iconMedium}
           />
