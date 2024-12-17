@@ -16,96 +16,43 @@ import Sound from 'react-native-sound';
 import Slider from '@react-native-community/slider';
 import {useNavigation} from '@react-navigation/native';
 import {useMusicPlayer} from '../context/MusicPlayerContext';
-import Share from 'react-native-share'; // 공유 라이브러리 추가
+import Share from 'react-native-share';
 
 type PlayScreenRouteProp = RouteProp<RootStackParamList, 'PlayScreen'>;
 
 const PlayScreen = () => {
   const route = useRoute<PlayScreenRouteProp>();
-  const {setTrack: setGlobalTrack, addToLikedSongs} = useMusicPlayer();
-  const [track, setTrack] = useState<DeezerTrack | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [sound, setSound] = useState<Sound | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
   const navigation = useNavigation();
 
-  useEffect(() => {
-    loadTrack();
-    return () => {
-      sound?.release();
-    };
-  }, []);
+  const {
+    currentTrack,
+    isPlaying,
+    togglePlayPause,
+    handleSliderChange,
+    progress,
+    setTrack,
+    setPlaylist,
+    fetchTrackDetails,
+    fetchPlaylist,
+    addToLikedSongs,
+  } = useMusicPlayer();
 
   useEffect(() => {
-    if (sound && isPlaying && track?.duration) {
-      const interval = setInterval(() => {
-        sound.getCurrentTime(seconds => {
-          setCurrentTime(seconds);
-          setProgress(seconds / track.duration);
-        });
-      }, 1000);
-
-      return () => clearInterval(interval);
-    }
-  }, [sound, isPlaying, track]);
-
-  const loadTrack = async () => {
     const {trackId, playlistId} = route.params;
 
+    if (currentTrack && currentTrack.id === trackId) {
+      return;
+    }
+
     if (trackId) {
-      const trackData = await deezerApi.getTrackDetails(trackId);
-      if (trackData) {
-        setTrack(trackData);
-        setGlobalTrack({
-          id: trackData.id,
-          title: trackData.title,
-          artist: trackData.artist.name,
-          albumCover: trackData.album.cover_medium,
-          duration: trackData.duration,
-          previewUrl: trackData.preview,
-        });
-        setupSound(trackData.preview);
-      }
+      fetchTrackDetails(trackId);
     } else if (playlistId) {
-      const playlistTracks = await deezerApi.getPlaylistTracks(playlistId);
-      if (playlistTracks?.length > 0) {
-        const firstTrack = playlistTracks[0];
-        setTrack(firstTrack);
-        setGlobalTrack({
-          id: firstTrack.id,
-          title: firstTrack.title,
-          artist: firstTrack.artist.name,
-          albumCover: firstTrack.album.cover_medium,
-          duration: firstTrack.duration,
-          previewUrl: firstTrack.preview,
-        }); // 전역 상태 업데이트
-        setupSound(firstTrack.preview);
-      }
+      fetchPlaylist(playlistId);
     }
-  };
+  }, [route.params, currentTrack]);
 
-  const setupSound = (previewUrl: string) => {
-    const newSound = new Sound(previewUrl, '', error => {
-      if (error) {
-        console.error('Error loading sound:', error);
-        return;
-      }
-      newSound.setNumberOfLoops(0);
-      newSound.setVolume(1.0);
-    });
-    setSound(newSound);
-  };
-
-  const togglePlayPause = () => {
-    if (sound) {
-      if (isPlaying) {
-        sound.pause();
-      } else {
-        sound.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
+  const minimizePlayer = () => {
+    navigation.goBack();
   };
 
   const formatTime = (seconds: number) => {
@@ -115,41 +62,25 @@ const PlayScreen = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const handleSliderChange = (value: number) => {
-    if (sound && track?.duration) {
-      const newTime = value * track.duration;
-      sound.setCurrentTime(newTime);
-      setCurrentTime(newTime);
-      setProgress(value);
-    }
-  };
-
-  const minimizePlayer = () => {
-    navigation.goBack();
-  };
-
   const handleLikeSong = () => {
     addToLikedSongs();
     ToastAndroid.show('Added to Liked Songs!', ToastAndroid.SHORT);
   };
 
   const handleShareSong = () => {
-    if (track) {
+    if (currentTrack) {
       const shareOptions = {
-        title: `Listen to ${track.title} by ${track.artist.name}`,
-        message: `Check out this track: "${track.title}" by ${track.artist.name}!`,
-        url: track.preview,
+        title: `Listen to ${currentTrack.title} by ${currentTrack.artist}`,
+        message: `Check out this track: "${currentTrack.title}" by ${currentTrack.artist}!`,
+        url: currentTrack.previewUrl,
       };
 
       Share.open(shareOptions)
-        .then(res => {
-          console.log('Shared successfully:', res);
-          ToastAndroid.show('Shared successfully!', ToastAndroid.SHORT);
-        })
+        .then(() =>
+          ToastAndroid.show('Shared successfully!', ToastAndroid.SHORT),
+        )
         .catch(err => {
-          if (err?.message === 'User did not share') {
-            console.log('Share cancelled by user');
-          } else {
+          if (err?.message !== 'User did not share') {
             console.error('Error sharing:', err);
             ToastAndroid.show(
               'Error occurred during sharing.',
@@ -160,7 +91,7 @@ const PlayScreen = () => {
     }
   };
 
-  if (!track) {
+  if (!currentTrack) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0090A8" />
@@ -182,17 +113,13 @@ const PlayScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <Image source={{uri: track.album.cover_medium}} style={styles.albumArt} />
+      <Image source={{uri: currentTrack.albumCover}} style={styles.albumArt} />
 
       <View style={styles.trackInfo}>
-        <Text
-          style={styles.trackTitle}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}>
-          {track.title}
+        <Text style={styles.trackTitle} numberOfLines={1}>
+          {currentTrack.title}
         </Text>
-        <Text style={styles.artistName}>{track.artist.name}</Text>
+        <Text style={styles.artistName}>{currentTrack.artist}</Text>
       </View>
 
       <View style={styles.progressContainer}>
@@ -207,9 +134,12 @@ const PlayScreen = () => {
           thumbTintColor="#0090A8"
         />
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
           <Text style={styles.timeText}>
-            {formatTime(track?.duration || 0)}
+            {formatTime(currentTrack?.currentTime || 0)}
+          </Text>
+
+          <Text style={styles.timeText}>
+            {formatTime(currentTrack?.duration || 0)}
           </Text>
         </View>
       </View>
@@ -234,7 +164,7 @@ const PlayScreen = () => {
                 ? require('../img/Stop.png')
                 : require('../img/Play.png')
             }
-            style={[styles.iconLarge, styles.whiteIcon]}
+            style={styles.iconLarge}
           />
         </TouchableOpacity>
         <TouchableOpacity>
@@ -355,7 +285,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   playButton: {
-    backgroundColor: '#000',
     borderRadius: 32,
     padding: 12,
     alignItems: 'center',

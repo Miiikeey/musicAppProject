@@ -19,8 +19,6 @@ const MiniPlayer = () => {
     handleSliderChange,
   } = useMusicPlayer();
 
-  console.log('Current Track:', currentTrack);
-
   if (!currentTrack) return null;
 
   return (

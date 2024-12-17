@@ -1,17 +1,13 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  ReactNode,
-  useEffect,
-} from 'react';
+import React, {createContext, useContext, useState, useEffect} from 'react';
 import Sound from 'react-native-sound';
+import {deezerApi} from '../services/deezerApi';
 
 type Song = {
   id: number;
   title: string;
   artist: string;
   albumCover: string;
+  currentTime?: number;
   duration: number;
   previewUrl: string;
 };
@@ -24,14 +20,15 @@ type MusicPlayerContextType = {
   sound: Sound | null;
   progress: number;
   currentTime: number;
-  togglePlayPause: () => void;
-  minimizePlayer: () => void;
   setTrack: (track: Song) => void;
   setPlaylist: (tracks: Song[]) => void;
+  togglePlayPause: () => void;
   playNextTrack: () => void;
   handleSliderChange: (value: number) => void;
   addToLikedSongs: () => void;
   removeFromLikedSongs: (id: number) => void;
+  fetchTrackDetails: (trackId: number) => Promise<void>;
+  fetchPlaylist: (playlistId: number) => Promise<void>;
 };
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(
@@ -45,36 +42,60 @@ export const MusicPlayerProvider = ({
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<Song | null>(null);
-  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
   const [playlist, setPlaylistState] = useState<Song[]>([]);
+  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
   const [sound, setSound] = useState<Sound | null>(null);
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
 
   useEffect(() => {
-    if (sound) {
-      sound.play(success => {
-        if (success) {
-          playNextTrack();
-        } else {
-          console.error('Playback failed due to audio decoding errors.');
-        }
-      });
-    }
-  }, [sound]);
-
-  useEffect(() => {
-    if (sound && isPlaying && currentTrack?.duration) {
+    if (sound && isPlaying) {
       const interval = setInterval(() => {
         sound.getCurrentTime(seconds => {
           setCurrentTime(seconds);
-          setProgress(seconds / currentTrack.duration);
+          setProgress(seconds / (currentTrack?.duration || 1));
+          setCurrentTrack(prev => {
+            if (prev) {
+              return {...prev, currentTime: seconds};
+            }
+            return prev;
+          });
         });
       }, 1000);
-
       return () => clearInterval(interval);
     }
   }, [sound, isPlaying, currentTrack]);
+
+  const setTrack = (track: Song) => {
+    if (currentTrack?.id === track.id) {
+      return;
+    }
+
+    if (sound) {
+      sound.release();
+    }
+
+    const newSound = new Sound(track.previewUrl, '', error => {
+      if (error) {
+        console.error('Error initializing sound:', error);
+        return;
+      }
+      newSound.play(success => {
+        if (success) playNextTrack();
+      });
+      setSound(newSound);
+      setIsPlaying(true);
+    });
+
+    setCurrentTrack(track);
+    setProgress(0);
+    setCurrentTime(0);
+  };
+
+  const setPlaylist = (tracks: Song[]) => {
+    setPlaylistState(tracks);
+    if (tracks.length > 0) setTrack(tracks[0]);
+  };
 
   const togglePlayPause = () => {
     if (sound) {
@@ -87,79 +108,61 @@ export const MusicPlayerProvider = ({
     }
   };
 
-  const handleSliderChange = (value: number) => {
-    if (sound && currentTrack?.duration) {
-      const newTime = value * currentTrack.duration;
-      sound.setCurrentTime(newTime);
-      setCurrentTime(newTime);
-      setProgress(value);
-    }
-  };
-
-  const setTrack = (track: Song) => {
-    if (!track) return;
-
-    if (sound) {
-      sound.release();
-    }
-
-    const newSound = new Sound(track.previewUrl, '', error => {
-      if (!error) {
-        console.log('Sound initialized:', track.title);
-        setSound(newSound);
-      } else {
-        console.error('Error initializing sound:', error);
-      }
-    });
-
-    setCurrentTrack(track);
-    setSound(newSound);
-    setIsPlaying(true);
-    setProgress(0);
-    setCurrentTime(0);
-  };
-
-  const setPlaylist = (tracks: Song[]) => {
-    setPlaylistState(tracks);
-    if (tracks.length > 0) {
-      setTrack(tracks[0]);
-    }
-  };
-
   const playNextTrack = () => {
     if (playlist.length > 0) {
       const currentIndex = playlist.findIndex(
         song => song.id === currentTrack?.id,
       );
-      const nextIndex = currentIndex + 1;
+      const nextIndex = (currentIndex + 1) % playlist.length; // 루프 재생
+      setTrack(playlist[nextIndex]);
+    }
+  };
 
-      if (nextIndex < playlist.length) {
-        setTrack(playlist[nextIndex]);
-      } else {
-        setIsPlaying(false);
-        setCurrentTrack(null);
-        setSound(null);
-        setProgress(0);
-        setCurrentTime(0);
-      }
+  const handleSliderChange = (value: number) => {
+    if (sound && currentTrack?.duration) {
+      const newTime = value * currentTrack.duration;
+      sound.setCurrentTime(newTime);
+      setProgress(value);
+      setCurrentTime(newTime);
     }
   };
 
   const addToLikedSongs = () => {
-    if (currentTrack) {
-      setLikedSongs(prevLikedSongs => {
-        if (!prevLikedSongs.some(song => song.id === currentTrack.id)) {
-          return [...prevLikedSongs, currentTrack];
-        }
-        return prevLikedSongs;
-      });
+    if (currentTrack && !likedSongs.some(song => song.id === currentTrack.id)) {
+      setLikedSongs([...likedSongs, currentTrack]);
     }
   };
 
   const removeFromLikedSongs = (id: number) => {
-    setLikedSongs(prevLikedSongs =>
-      prevLikedSongs.filter(song => song.id !== id),
-    );
+    setLikedSongs(likedSongs.filter(song => song.id !== id));
+  };
+
+  const fetchTrackDetails = async (trackId: number) => {
+    const trackData = await deezerApi.getTrackDetails(trackId);
+    if (trackData) {
+      const song: Song = {
+        id: trackData.id,
+        title: trackData.title,
+        artist: trackData.artist.name,
+        albumCover: trackData.album.cover_medium,
+        duration: trackData.duration,
+        previewUrl: trackData.preview,
+      };
+      setTrack(song);
+    }
+  };
+
+  const fetchPlaylist = async (playlistId: number) => {
+    const playlistData = await deezerApi.getPlaylistTracks(playlistId);
+    const tracks = playlistData.map((track: any) => ({
+      id: track.id,
+      title: track.title,
+      artist: track.artist.name,
+      albumCover: track.album.cover_medium,
+      duration: track.duration,
+      previewUrl: track.preview,
+    }));
+    setPlaylist(tracks);
   };
 
   return (
@@ -172,14 +175,15 @@ export const MusicPlayerProvider = ({
         sound,
         progress,
         currentTime,
-        togglePlayPause,
-        minimizePlayer: () => setIsPlaying(false),
         setTrack,
         setPlaylist,
+        togglePlayPause,
         playNextTrack,
         handleSliderChange,
         addToLikedSongs,
         removeFromLikedSongs,
+        fetchTrackDetails,
+        fetchPlaylist,
       }}>
       {children}
     </MusicPlayerContext.Provider>
@@ -188,8 +192,7 @@ export const MusicPlayerProvider = ({
 
 export const useMusicPlayer = () => {
   const context = useContext(MusicPlayerContext);
-  if (!context) {
+  if (!context)
     throw new Error('useMusicPlayer must be used within a MusicPlayerProvider');
-  }
   return context;
 };
