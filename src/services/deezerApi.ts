@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const DEEZER_API_BASE = 'https://api.deezer.com';
 
 export interface DeezerTrack {
@@ -30,6 +32,8 @@ export interface DeezerAlbum {
     name: string;
   };
 }
+
+const PLAYLISTS_KEY = '@playlists';
 
 export const deezerApi = {
   // Search tracks
@@ -105,13 +109,12 @@ export const deezerApi = {
     }
   },
 
-  getUserPlaylists: async (userId: string) => {
+  getUserPlaylists: async (userId: string): Promise<DeezerPlaylist[]> => {
     try {
-      const response = await fetch(`https://api.deezer.com/user/${userId}/playlists`);
-      const data = await response.json();
-      return data.data || [];
+      const playlists = await AsyncStorage.getItem(PLAYLISTS_KEY);
+      return playlists ? JSON.parse(playlists) : [];
     } catch (error) {
-      console.error('Error fetching user playlists:', error);
+      console.error('Error fetching playlists:', error);
       return [];
     }
   },
@@ -124,6 +127,26 @@ export const deezerApi = {
     } catch (error) {
       console.error('Error fetching playlist tracks:', error);
       return [];
+    }
+  },
+
+  createPlaylist: async (userId: string, name: string): Promise<DeezerPlaylist | null> => {
+    try {
+      const newPlaylist: DeezerPlaylist = {
+        id: Date.now(),
+        title: name,
+        picture_medium: '',
+        nb_tracks: 0,
+      };
+
+      const existingPlaylists = await deezerApi.getUserPlaylists(userId);
+      const updatedPlaylists = [...existingPlaylists, newPlaylist];
+      
+      await AsyncStorage.setItem(PLAYLISTS_KEY, JSON.stringify(updatedPlaylists));
+      return newPlaylist;
+    } catch (error) {
+      console.error('Error creating playlist:', error);
+      return null;
     }
   },
 }; 

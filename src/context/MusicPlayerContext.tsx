@@ -21,6 +21,8 @@ type MusicPlayerContextType = {
   progress: number;
   currentTime: number;
   isRepeatOne: boolean;
+  volume: number;
+  setVolume: (value: number) => void;
   setTrack: (track: Song) => void;
   setPlaylist: (tracks: Song[]) => void;
   addToPlaylist: (track: Song) => void;
@@ -53,6 +55,7 @@ export const MusicPlayerProvider = ({
   const [progress, setProgress] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [isRepeatOne, setIsRepeatOne] = useState(false);
+  const [volume, setVolume] = useState<number>(1);
 
   useEffect(() => {
     if (sound && isPlaying) {
@@ -72,6 +75,13 @@ export const MusicPlayerProvider = ({
     }
   }, [sound, isPlaying, currentTrack]);
 
+  const handleVolumeChange = (value: number) => {
+    if (sound) {
+      sound.setVolume(value);
+      setVolume(value);
+    }
+  };
+
   const setTrack = (track: Song) => {
     if (currentTrack?.id === track.id) {
       return;
@@ -86,6 +96,7 @@ export const MusicPlayerProvider = ({
         console.error('Error initializing sound:', error);
         return;
       }
+      newSound.setVolume(volume);
       newSound.play(success => {
         if (success) playNextTrack();
       });
@@ -217,6 +228,8 @@ export const MusicPlayerProvider = ({
         progress,
         currentTime,
         isRepeatOne,
+        volume,
+        setVolume: handleVolumeChange,
         setTrack,
         setPlaylist,
         addToPlaylist,

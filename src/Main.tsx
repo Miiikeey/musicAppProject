@@ -20,6 +20,7 @@ import LikedSongs from './componants/Liked';
 import {RootStackParamList} from './types/navigation';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {MusicPlayerProvider} from './context/MusicPlayerContext';
+import CreatePlaylist from './componants/CreatePlaylist';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -68,6 +69,7 @@ const Main = () => {
           <Stack.Screen name="TopSongs" component={TopSongs} />
           <Stack.Screen name="RecentlyPlayed" component={RecentlyPlayed} />
           <Stack.Screen name="LikedSongs" component={LikedSongs} />
+          <Stack.Screen name="CreatePlaylist" component={CreatePlaylist} />
         </Stack.Navigator>
       </NavigationContainer>
     </MusicPlayerProvider>

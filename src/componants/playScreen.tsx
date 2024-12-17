@@ -41,6 +41,8 @@ const PlayScreen = () => {
     toggleRepeatOne,
     shufflePlaylist,
     isRepeatOne,
+    volume,
+    setVolume,
   } = useMusicPlayer();
 
   const [isPlaylistVisible, setIsPlaylistVisible] = useState(false);
@@ -185,11 +187,25 @@ const PlayScreen = () => {
             source={
               isRepeatOne
                 ? require('../img/RepeatOne.png')
-                : require('../img/RepeatOne.png')
+                : require('../img/RepeatOneOff.png')
             }
             style={styles.iconMedium}
           />
         </TouchableOpacity>
+      </View>
+
+      <View style={styles.volumeContainer}>
+        <Image source={require('../img/Playlist.png')} style={styles.volumeIcon} />
+        <Slider
+          style={styles.volumeSlider}
+          minimumValue={0}
+          maximumValue={1}
+          value={volume}
+          onValueChange={setVolume}
+          minimumTrackTintColor="#0090A8"
+          maximumTrackTintColor="#C9C5C5"
+          thumbTintColor="#0090A8"
+        />
       </View>
 
       <View style={styles.bottomControls}>
@@ -342,6 +358,21 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  volumeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    marginBottom: 24,
+  },
+  volumeIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+  },
+  volumeSlider: {
+    flex: 1,
+    height: 40,
   },
 });
 

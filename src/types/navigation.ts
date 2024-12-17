@@ -14,4 +14,7 @@ export type RootStackParamList = {
     trackId?: number;
     playlistId?: number;
   };
+  CreatePlaylist: {
+    onPlaylistCreated?: () => void;
+  };
 };
